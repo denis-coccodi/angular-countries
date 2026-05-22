@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { Country } from '../../shared/types/countries.model';
+import { Country, FullCountry } from '../../shared/types/countries.model';
 
 @Injectable({
   providedIn: 'root',
@@ -38,8 +38,8 @@ export class CountryService {
     return this.http.get('https://restcountries.com/v3.1/region/' + region);
   }
 
-  getByCodes(codes: string[]): Observable<any> {
-    return this.http.get(
+  getByCodes(codes: string[]): Observable<FullCountry[]> {
+    return this.http.get<FullCountry[]>(
       'https://restcountries.com/v3.1/alpha?codes=' + codes.join(','),
     );
   }

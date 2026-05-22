@@ -3,13 +3,17 @@ import {
   Component,
   computed,
   inject,
-  OnInit
+  OnDestroy,
+  OnInit,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { CountryService } from '../core/service/country.service';
 import { Country } from '../shared/types/countries.model';
+import { CountryCardProperty } from '../shared/ui/country-card/country-card.component';
 
 @Component({
   selector: 'app-compare-countries',
@@ -18,12 +22,22 @@ import { Country } from '../shared/types/countries.model';
   styleUrl: './compare-countries.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CompareCountriesComponent implements OnInit {
+export class CompareCountriesComponent implements OnInit, OnDestroy {
   // Injections
   countriesService = inject(CountryService);
 
   // State
   countries = this.countriesService.countries;
+  selectedProperties = signal<CountryCardProperty[]>([
+    'region',
+    'population',
+    'area',
+    'capital',
+    'timezones',
+    'currencies',
+    'languages',
+    'borders',
+  ]);
   selectedCountriesForm = new FormGroup({
     countries: new FormControl<Country[]>([]),
   });
@@ -43,16 +57,35 @@ export class CompareCountriesComponent implements OnInit {
     { initialValue: [] },
   );
 
+  subscriptions = new Subscription();
+
   ngOnInit(): void {
     if (this.countries().length === 0) {
-      this.countriesService.getAll().subscribe((countries) => {
-        this.countries.set(countries);
-      });
+      this.subscriptions.add(
+        this.countriesService.getAll().subscribe((countries) => {
+          this.countries.set(countries);
+        }),
+      );
     }
   }
 
   onCountrySelectionChange(event: Country[]): void {
-    this.selectedCountriesForm.get('countries')?.setValue(event);
+    const selectedCountriesCodes = event.map((country) => country.cca3);
+    if (selectedCountriesCodes.length) {
+      this.subscriptions.add(
+        this.countriesService
+          .getByCodes(selectedCountriesCodes)
+          .subscribe((countries) => {
+            this.selectedCountriesForm.get('countries')?.setValue(countries);
+          }),
+      );
+    } else {
+      this.selectedCountriesForm.get('countries')?.setValue(event);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }
 

@@ -1,13 +1,16 @@
 import { Component, computed, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Country } from '../../types/countries.model';
+import { Country, FullCountry, isFullCountry } from '../../types/countries.model';
 
 export type CountryCardProperty =
   | 'population'
   | 'region'
   | 'capital'
   | 'currencies'
-  | 'languages';
+  | 'languages'
+  | 'area'
+  | 'timezones'
+  | 'borders';
 
 type countryCardPropertyDetail = {
   value: string;
@@ -20,7 +23,7 @@ type countryCardPropertyDetail = {
   templateUrl: './country-card.component.html',
 })
 export class CountryCardComponent {
-  country = input.required<Country>();
+  country = input.required<Country | FullCountry>();
   displayedInfo = input<CountryCardProperty[]>([
     'population',
     'region',
@@ -33,19 +36,33 @@ export class CountryCardComponent {
     const displayedInfo = this.displayedInfo();
     const country = this.country();
 
-    return displayedInfo.reduce<countryCardPropertyDetail[]>((acc, info) => [
-      ...acc,
-      {
-        label: info.charAt(0).toUpperCase() + info.slice(1),
-        value:
-          info === 'population' ? this.getPopulation()
-          : info === 'region' ? country.region
-          : info === 'capital' ? country.capital?.join(', ') || 'N/A'
-          : info === 'currencies' ? this.getCurrencies()
-          : info === 'languages' ? this.getLanguages()
-          : 'N/A',
-      },
-    ], [])
+    return displayedInfo.reduce<countryCardPropertyDetail[]>(
+      (acc, info) => [
+        ...acc,
+        {
+          label: info.charAt(0).toUpperCase() + info.slice(1),
+          value:
+            info === 'population'
+              ? this.getPopulation()
+              : info === 'region'
+              ? country.region
+              : info === 'capital'
+              ? country.capital?.join(', ') || 'N/A'
+              : info === 'currencies'
+              ? this.getCurrencies()
+              : info === 'languages'
+              ? this.getLanguages()
+              : info === 'area'
+              ? `${country.area?.toLocaleString()} km²`
+              : info === 'timezones'
+              ? isFullCountry(country) ? country.timezones.join(', ') || 'N/A' : 'N/A'
+              : info === 'borders'
+              ? country.borders?.join(', ') || 'N/A'
+              : 'N/A',
+        },
+      ],
+      [],
+    );
   });
 
   constructor(private router: Router) {}

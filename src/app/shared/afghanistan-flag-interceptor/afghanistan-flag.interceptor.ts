@@ -1,15 +1,14 @@
 import {
-    HttpEvent,
-    HttpHandler,
-    HttpInterceptor,
-    HttpRequest,
-    HttpResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+  HttpResponse,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-const RESTCOUNTRIES_URL = 'https://restcountries.com/v3.1/all';
 const COUNTRY_FLAG_TO_REPLACE = 'Islamic Republic of Afghanistan';
 const AFGHANISTAN_FLAG_PNG = 'https://flagcdn.com/w320/af.png';
 
@@ -23,8 +22,7 @@ export class AfghanistanFlagInterceptor implements HttpInterceptor {
       map((event: HttpEvent<unknown>) => {
         if (
           !(event instanceof HttpResponse) ||
-          !Array.isArray(event.body) ||
-          !req.url.startsWith(RESTCOUNTRIES_URL)
+          !Array.isArray(event.body) 
         ) {
           return event;
         }
