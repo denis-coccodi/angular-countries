@@ -9,6 +9,7 @@
             "alt": "The flag of the Islamic Emirate of Afghanistan has a white field with Arabic inscriptions — the Shahada — in black across its center."
         }, 
         from https://restcountries.com/v3.1/all?fields=name,capital,region,population,area,currencies,languages,borders,flags,cca3
+- Height of country cards is uneven.        
 - applyFilters is altering a global element directly in the country list component, rather than passing it as a parameter.
 Passing this.countries as parameter and then using the spread operator inside the function allows you to understand at a glance what kind of state data you'll be editing in the function. 
 - countries: any[] = [];
@@ -19,6 +20,7 @@ Passing this.countries as parameter and then using the spread operator inside th
 
 ## What I did
 - Added an Interceptor to fix the Afghanistan flag since I don't have access to the BE side.
+- Fixed the height of country cards to all have the same height of the highest in the row: height: 100%;
 
 
 ## What I'd do with more time
