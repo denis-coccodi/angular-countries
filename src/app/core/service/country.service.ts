@@ -19,7 +19,9 @@ export class CountryService {
       )
       .pipe(
         tap((data: Country[]) => {
-          this.countries.set(data);
+          this.countries.set(
+            data.sort((a, b) => a.name.common.localeCompare(b.name.common)),
+          );
         }),
       );
   }
