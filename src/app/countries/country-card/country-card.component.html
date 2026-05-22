@@ -1,0 +1,30 @@
+<div class="country-card" (click)="onCardClick()">
+  <div class="card-flag">
+    <img [src]="country.flags?.png" alt="flag">
+  </div>
+  <div class="card-body">
+    <div class="card-title">{{ country.name.common }}</div>
+    <div class="card-info">
+      <div class="info-row">
+        <span class="label">Population:</span>
+        <span class="value">{{ getPopulation() }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Region:</span>
+        <span class="value">{{ country.region }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Capital:</span>
+        <span class="value">{{ country.capital ? country.capital[0] : 'N/A' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Currencies:</span>
+        <span class="value">{{ getCurrencies() }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Languages:</span>
+        <span class="value">{{ getLanguages() }}</span>
+      </div>
+    </div>
+  </div>
+</div>

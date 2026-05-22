@@ -1,0 +1,54 @@
+<div class="country-list-page">
+  <div class="filters-bar">
+    <form [formGroup]="filterForm">
+      <div class="filter-row">
+        <div class="filter-item">
+          <app-p-input-text
+            [value]="filterForm.get('search')!.value"
+            placeholder="Search countries..."
+            (valueChange)="filterForm.get('search')!.setValue($event)">
+          </app-p-input-text>
+        </div>
+
+        <div class="filter-item">
+          <app-p-dropdown
+            [options]="regions"
+            [value]="filterForm.get('region')!.value"
+            placeholder="All Regions"
+            [showClear]="true"
+            (valueChange)="filterForm.get('region')!.setValue($event)">
+          </app-p-dropdown>
+        </div>
+
+        <div class="filter-item">
+          <app-p-dropdown
+            [options]="sortOptions"
+            [value]="filterForm.get('sortBy')!.value"
+            optionLabel="label"
+            optionValue="value"
+            (valueChange)="filterForm.get('sortBy')!.setValue($event)">
+          </app-p-dropdown>
+        </div>
+
+        <div class="filter-item">
+          <button class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="results-info">
+    <span>{{ filteredCountries.length }} countries found</span>
+  </div>
+
+  <div class="country-grid" *ngIf="!loading">
+    <app-country-card
+      *ngFor="let country of filteredCountries"
+      [country]="country">
+    </app-country-card>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Loading countries...</p>
+  </div>
+</div>
