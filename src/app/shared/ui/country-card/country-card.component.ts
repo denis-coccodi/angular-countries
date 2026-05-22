@@ -57,7 +57,7 @@ export class CountryCardComponent {
               : info === 'timezones'
               ? isFullCountry(country) ? country.timezones.join(', ') || 'N/A' : 'N/A'
               : info === 'borders'
-              ? country.borders?.join(', ') || 'N/A'
+              ? country.borders?.join(', ') || 'None'
               : 'N/A',
         },
       ],

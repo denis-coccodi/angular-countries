@@ -1,5 +1,12 @@
 $tablet: 768px;
 
+.selected-countries-form {
+  & > * {
+    max-width: 400px;
+    display: block;
+  }
+}
+
 .compare-countries-grid {
   display: flex;
   flex-flow: row wrap;
@@ -9,7 +16,7 @@ $tablet: 768px;
 
   app-country-card {
     width: 100%;
-    
+
     // Tablet and up (768px+)
     @media (min-width: $tablet) {
       flex: 1;
