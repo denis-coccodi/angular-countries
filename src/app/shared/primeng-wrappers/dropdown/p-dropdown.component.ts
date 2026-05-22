@@ -8,8 +8,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       [options]="options"
       [ngModel]="value"
       [placeholder]="placeholder"
-      [optionLabel]="optionLabel"
-      [optionValue]="optionValue"
+      [optionLabel]="optionLabel || undefined"
+      [optionValue]="optionValue || undefined"
       [showClear]="showClear"
       (ngModelChange)="valueChange.emit($event)"
       [style]="{ width: '100%' }">

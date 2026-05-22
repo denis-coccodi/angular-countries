@@ -16,6 +16,7 @@
   filteredCountries: any[] = [];
   Any as a type outside of unit tests should hardly ever exist to make navigating the code and understanding it easier, other than reduce potential bugs because of a lack of knowledge about included object properties.
 - Cannot tab through countries or select them with enter
+- Regions dropdown was bugged and showed Empty on all lines
 
 
 
@@ -27,6 +28,7 @@
 - Moved the country card component to a shared UI folder
 - Added a wrapper for the primeng multiselect component for consistency
 - Created a new compare countries route and page
+- Fixed Regions dropdown
 
 
 
