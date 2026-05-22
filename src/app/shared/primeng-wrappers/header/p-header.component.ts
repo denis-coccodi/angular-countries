@@ -12,6 +12,7 @@ import { Component, Input } from '@angular/core';
         </div>
         <nav class="header-nav">
           <a routerLink="/countries" routerLinkActive="active">Countries</a>
+          <a routerLink="/compare" routerLinkActive="active">Compare Countries</a>
         </nav>
       </div>
     </div>

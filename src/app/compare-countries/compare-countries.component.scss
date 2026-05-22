@@ -1,0 +1,20 @@
+$tablet: 768px;
+
+.compare-countries-grid {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 16px;
+  justify-content: center;
+  padding: 50px 24px;
+
+  app-country-card {
+    width: 100%;
+    
+    // Tablet and up (768px+)
+    @media (min-width: $tablet) {
+      flex: 1;
+      max-width: 25%;
+    }
+  }
+}
+

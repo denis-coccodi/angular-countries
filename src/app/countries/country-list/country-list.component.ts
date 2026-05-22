@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { CountryService } from '../../core/service/country.service';
+import { Country } from '../../shared/types/countries.model';
 
 @Component({
   selector: 'app-country-list',
@@ -10,8 +11,8 @@ import { CountryService } from '../../core/service/country.service';
 })
 export class CountryListComponent implements OnInit, OnDestroy {
 
-  countries: any[] = [];
-  filteredCountries: any[] = [];
+  countries: Country[] = [];
+  filteredCountries: Country[] = [];
   loading = false;
   subscription = new Subscription();
 

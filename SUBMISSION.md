@@ -9,18 +9,25 @@
             "alt": "The flag of the Islamic Emirate of Afghanistan has a white field with Arabic inscriptions — the Shahada — in black across its center."
         }, 
         from https://restcountries.com/v3.1/all?fields=name,capital,region,population,area,currencies,languages,borders,flags,cca3
-- Height of country cards is uneven.        
-- applyFilters is altering a global element directly in the country list component, rather than passing it as a parameter.
-Passing this.countries as parameter and then using the spread operator inside the function allows you to understand at a glance what kind of state data you'll be editing in the function. 
+- Height of country cards is uneven. 
+- Regions select is populated with an array of empties.       
+- CSS is all global
 - countries: any[] = [];
   filteredCountries: any[] = [];
   Any as a type outside of unit tests should hardly ever exist to make navigating the code and understanding it easier, other than reduce potential bugs because of a lack of knowledge about included object properties.
+- Cannot tab through countries or select them with enter
 
 
 
 ## What I did
 - Added an Interceptor to fix the Afghanistan flag since I don't have access to the BE side.
 - Fixed the height of country cards to all have the same height of the highest in the row: height: 100%;
+- Introduced tabbing and enter key function on country cards.
+- Added Country type.
+- Moved the country card component to a shared UI folder
+- Added a wrapper for the primeng multiselect component for consistency
+- Created a new compare countries route and page
+
 
 
 ## What I'd do with more time

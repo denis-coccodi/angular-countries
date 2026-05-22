@@ -1,0 +1,16 @@
+<div class="country-card" (click)="onCardClick()" tabIndex="0" (keyup.enter)="onCardClick()">
+  <div class="card-flag">
+    <img [src]="country().flags.png" alt="flag">
+  </div>
+  <div class="card-body">
+    <div class="card-title">{{ country().name.common }}</div>
+    <div class="card-info">
+      @for (property of infoMap(); track property.label) {
+        <div class="info-row">
+          <span class="label">{{property.label}}</span>
+          <span class="value">{{ property.value }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

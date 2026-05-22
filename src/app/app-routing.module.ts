@@ -7,6 +7,10 @@ const routes: Routes = [
     loadChildren: () => import('./countries/countries.module').then(m => m.CountriesModule)
   },
   {
+    path: 'compare',
+    loadChildren: () => import('./compare-countries/compare-countries.module').then(m => m.CompareCountriesModule)
+  },
+  {
     path: '',
     redirectTo: 'countries',
     pathMatch: 'full'
