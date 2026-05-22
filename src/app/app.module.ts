@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AfghanistanFlagInterceptor } from './shared/afghanistan-flag-interceptor/afghanistan-flag.interceptor';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
@@ -20,7 +21,8 @@ import { SharedModule } from './shared/shared.module';
     SharedModule
   ],
   providers: [
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()),
+    { provide: HTTP_INTERCEPTORS, useClass: AfghanistanFlagInterceptor, multi: true },
     providePrimeNG({
       theme: {
         preset: Aura
