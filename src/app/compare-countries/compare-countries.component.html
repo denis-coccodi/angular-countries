@@ -1,14 +1,16 @@
-<app-p-multiselect
-  [options]="countryOptions()"
-  [virtualScrollItemSize]="45"
-  [placeholder]="'Filter by country...'"
-  (valueChange)="onCountrySelectionChange($event)"
-/>
+<form [formGroup]="selectedCountriesForm">
+  <app-p-multiselect
+    [options]="countryOptions()"
+    [virtualScrollItemSize]="45"
+    [placeholder]="'Filter by country...'"
+    (valueChange)="onCountrySelectionChange($event)"
+  />
+</form>
 
 <div class="compare-countries-grid">
-  <app-country-card
-    *ngFor="let country of selectedCountries()"
-    [country]="country"
-  >
-  </app-country-card>
+  @for (country of selectedCountries(); track country.cca3) {
+  <app-country-card [country]="country" />
+  } @empty {
+  <p>Select countries to compare</p>
+  }
 </div>

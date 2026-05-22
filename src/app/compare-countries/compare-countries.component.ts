@@ -3,9 +3,11 @@ import {
   Component,
   computed,
   inject,
-  OnInit,
-  signal,
+  OnInit
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup } from '@angular/forms';
+import { startWith } from 'rxjs/operators';
 import { CountryService } from '../core/service/country.service';
 import { Country } from '../shared/types/countries.model';
 
@@ -22,7 +24,9 @@ export class CompareCountriesComponent implements OnInit {
 
   // State
   countries = this.countriesService.countries;
-  selectedCountries = signal<Country[]>([]);
+  selectedCountriesForm = new FormGroup({
+    countries: new FormControl<Country[]>([]),
+  });
 
   // Computed
   countryOptions = computed(() =>
@@ -30,6 +34,13 @@ export class CompareCountriesComponent implements OnInit {
       label: country.name.common,
       value: country,
     })),
+  );
+
+  selectedCountries = toSignal(
+    this.selectedCountriesForm
+      .get('countries')!
+      .valueChanges.pipe(startWith([])),
+    { initialValue: [] },
   );
 
   ngOnInit(): void {
@@ -41,7 +52,7 @@ export class CompareCountriesComponent implements OnInit {
   }
 
   onCountrySelectionChange(event: Country[]): void {
-    console.log(event);
-    this.selectedCountries.set(event);
+    this.selectedCountriesForm.get('countries')?.setValue(event);
   }
 }
+
