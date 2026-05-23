@@ -1,19 +1,21 @@
 <form [formGroup]="selectedCountriesForm" class="selected-countries-form">
+  <label for="country-select">Select countries to compare</label>
   <app-p-multiselect
+    inputId="country-select"
+    ariaLabel="Select countries to compare"
     [options]="countryOptions()"
-    [virtualScrollItemSize]="45"
-    [placeholder]="'Filter by country...'"
+    placeholder="Select country..."
     (valueChange)="onCountrySelectionChange($event)"
   />
 </form>
 
-<div class="compare-countries-grid">
+<section class="compare-countries-grid" aria-label="Countries comparison">
   @for (country of selectedCountries(); track country.cca3) {
   <app-country-card
     [country]="country"
     [displayedInfo]="selectedProperties()"
   ></app-country-card>
   } @empty {
-  <p>Select countries to compare</p>
+  <p role="status">Select countries above to start comparing</p>
   }
-</div>
+</section>

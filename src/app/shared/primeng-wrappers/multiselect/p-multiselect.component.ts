@@ -12,6 +12,8 @@ const DEFAULT_ITEM_SIZE = 45;
   imports: [MultiSelectModule, FormsModule],
   template: `
     <p-multiselect
+      [inputId]="inputId()"
+      [attr.aria-label]="ariaLabel() || null"
       [options]="options()"
       [ngModel]="selectedOptions()"
       (ngModelChange)="selectedOptions.set($event)"
@@ -28,6 +30,8 @@ const DEFAULT_ITEM_SIZE = 45;
   `,
 })
 export class PMultiselectComponent<T> {
+  inputId = input('');
+  ariaLabel = input('');
   options = input<unknown[]>([]);
   placeholder = input('');
   optionLabel = input('');

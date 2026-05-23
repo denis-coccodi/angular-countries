@@ -1,16 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { CountryService } from '../../core/service/country.service';
 import { Country } from '../../shared/types/countries.model';
 
 @Component({
   selector: 'app-country-list',
   standalone: false,
-  templateUrl: './country-list.component.html'
+  templateUrl: './country-list.component.html',
 })
 export class CountryListComponent implements OnInit, OnDestroy {
-
   countries: Country[] = [];
   filteredCountries: Country[] = [];
   loading = false;
@@ -19,7 +19,7 @@ export class CountryListComponent implements OnInit, OnDestroy {
   filterForm = new UntypedFormGroup({
     search: new UntypedFormControl(''),
     region: new UntypedFormControl(''),
-    sortBy: new UntypedFormControl('name')
+    sortBy: new UntypedFormControl('name'),
   });
 
   regions = ['Africa', 'Americas', 'Antarctic', 'Asia', 'Europe', 'Oceania'];
@@ -27,10 +27,10 @@ export class CountryListComponent implements OnInit, OnDestroy {
   sortOptions = [
     { label: 'Name', value: 'name' },
     { label: 'Population', value: 'population' },
-    { label: 'Area', value: 'area' }
+    { label: 'Area', value: 'area' },
   ];
 
-  constructor(private countryService: CountryService) { }
+  constructor(private countryService: CountryService) {}
 
   ngOnInit(): void {
     this.loadCountries();
@@ -38,31 +38,33 @@ export class CountryListComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.filterForm.get('search')!.valueChanges.subscribe((value: any) => {
         this.applyFilters();
-      })
+      }),
     );
 
     this.subscription.add(
       this.filterForm.get('region')!.valueChanges.subscribe((value: any) => {
         this.applyFilters();
-      })
+      }),
     );
 
     this.subscription.add(
       this.filterForm.get('sortBy')!.valueChanges.subscribe((value: any) => {
         this.applyFilters();
-      })
+      }),
     );
   }
 
   loadCountries(): void {
     this.loading = true;
     this.subscription.add(
-      this.countryService.getAll().subscribe((data: any) => {
-        this.countries = data;
-        this.filteredCountries = data;
-        this.loading = false;
-        this.applyFilters();
-      })
+      this.countryService
+        .getAll()
+        .pipe(finalize(() => (this.loading = false)))
+        .subscribe((data: any) => {
+          this.countries = data;
+          this.filteredCountries = data;
+          this.applyFilters();
+        }),
     );
   }
 
@@ -72,7 +74,7 @@ export class CountryListComponent implements OnInit, OnDestroy {
     const searchTerm = this.filterForm.get('search')!.value;
     if (searchTerm) {
       result = result.filter((country: any) =>
-        country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+        country.name.common.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -83,7 +85,9 @@ export class CountryListComponent implements OnInit, OnDestroy {
 
     const sortBy = this.filterForm.get('sortBy')!.value;
     if (sortBy === 'name') {
-      result.sort((a: any, b: any) => a.name.common.localeCompare(b.name.common));
+      result.sort((a: any, b: any) =>
+        a.name.common.localeCompare(b.name.common),
+      );
     } else if (sortBy === 'population') {
       result.sort((a: any, b: any) => b.population - a.population);
     } else if (sortBy === 'area') {
@@ -103,3 +107,4 @@ export class CountryListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 }
+

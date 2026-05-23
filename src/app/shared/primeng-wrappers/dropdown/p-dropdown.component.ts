@@ -5,6 +5,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   standalone: false,
   template: `
     <p-select
+      [inputId]="inputId"
+      [attr.aria-label]="ariaLabel || null"
       [options]="options"
       [ngModel]="value"
       [placeholder]="placeholder"
@@ -17,6 +19,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   `
 })
 export class PDropdownComponent {
+  @Input() inputId = '';
+  @Input() ariaLabel = '';
   @Input() options: any[] = [];
   @Input() value: any;
   @Input() placeholder = '';

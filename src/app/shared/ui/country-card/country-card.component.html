@@ -1,16 +1,21 @@
-<div class="country-card" (click)="onCardClick()" tabIndex="0" (keyup.enter)="onCardClick()">
+<button
+  type="button"
+  class="country-card"
+  [attr.aria-label]="'View details for ' + country().name.common"
+  (click)="onCardClick()"
+>
   <div class="card-flag">
-    <img [src]="country().flags.png" alt="flag">
+    <img [src]="country().flags.png" [alt]="'Flag of ' + country().name.common">
   </div>
   <div class="card-body">
-    <div class="card-title">{{ country().name.common }}</div>
-    <div class="card-info">
+    <h3 class="card-title">{{ country().name.common }}</h3>
+    <dl class="card-info">
       @for (property of infoMap(); track property.label) {
         <div class="info-row">
-          <span class="label">{{property.label}}</span>
-          <span class="value">{{ property.value }}</span>
+          <dt class="label">{{property.label}}</dt>
+          <dd class="value">{{ property.value }}</dd>
         </div>
       }
-    </div>
+    </dl>
   </div>
-</div>
+</button>

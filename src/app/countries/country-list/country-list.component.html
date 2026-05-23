@@ -3,7 +3,10 @@
     <form [formGroup]="filterForm">
       <div class="filter-row">
         <div class="filter-item">
+          <label for="search-input">Search</label>
           <app-p-input-text
+            id="search-input"
+            ariaLabel="Search countries"
             [value]="filterForm.get('search')!.value"
             placeholder="Search countries..."
             (valueChange)="filterForm.get('search')!.setValue($event)">
@@ -11,7 +14,9 @@
         </div>
 
         <div class="filter-item">
+          <label for="region-select">Region</label>
           <app-p-dropdown
+            inputId="region-select"
             [options]="regions"
             [value]="filterForm.get('region')!.value"
             placeholder="All Regions"
@@ -21,7 +26,9 @@
         </div>
 
         <div class="filter-item">
+          <label for="sort-select">Sort by</label>
           <app-p-dropdown
+            inputId="sort-select"
             [options]="sortOptions"
             [value]="filterForm.get('sortBy')!.value"
             optionLabel="label"
@@ -31,24 +38,24 @@
         </div>
 
         <div class="filter-item">
-          <button class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+          <button class="clear-btn" type="button" (click)="clearFilters()">Clear Filters</button>
         </div>
       </div>
     </form>
   </div>
 
-  <div class="results-info">
+  <div class="results-info" aria-live="polite" aria-atomic="true">
     <span>{{ filteredCountries.length }} countries found</span>
   </div>
 
-  <div class="country-grid" *ngIf="!loading">
+  <div class="country-grid" role="region" aria-label="Country list" *ngIf="!loading">
     <app-country-card
       *ngFor="let country of filteredCountries"
       [country]="country">
     </app-country-card>
   </div>
 
-  <div class="loading" *ngIf="loading">
+  <div class="loading" *ngIf="loading" role="status" aria-live="polite">
     <p>Loading countries...</p>
   </div>
 </div>
