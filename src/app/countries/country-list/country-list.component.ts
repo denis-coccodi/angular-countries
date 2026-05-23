@@ -9,6 +9,7 @@ import { Country } from '../../shared/types/countries.model';
   selector: 'app-country-list',
   standalone: false,
   templateUrl: './country-list.component.html',
+  styleUrl: './country-list.component.scss',
 })
 export class CountryListComponent implements OnInit, OnDestroy {
   countries: Country[] = [];

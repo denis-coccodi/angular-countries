@@ -21,6 +21,7 @@ type countryCardPropertyDetail = {
   selector: 'app-country-card',
   standalone: false,
   templateUrl: './country-card.component.html',
+  styleUrl: './country-card.component.scss',
 })
 export class CountryCardComponent {
   country = input.required<Country | FullCountry>();

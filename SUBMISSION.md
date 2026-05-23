@@ -29,6 +29,8 @@
 - Added a wrapper for the primeng multiselect component for consistency
 - Created a new compare countries route and page
 - Fixed Regions dropdown
+- Added some Accessibility improvements
+- Moved most scss away from the styles.scss and into components
 
 
 

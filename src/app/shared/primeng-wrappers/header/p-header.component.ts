@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-p-header',
   standalone: false,
+  styleUrl: './p-header.component.scss',
   template: `
     <header class="app-header">
       <div class="header-content">

@@ -25,6 +25,15 @@
 // Unified focus colour for native elements and PrimeNG components
 $focus-color: #005ea2;
 
+:focus-visible {
+  outline: 3px solid $focus-color;
+  outline-offset: 2px;
+}
+
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
 :root {
   --p-focus-ring-width: 3px;
   --p-focus-ring-style: solid;
@@ -34,23 +43,17 @@ $focus-color: #005ea2;
   --p-select-focus-border-color: #{$focus-color};
   --p-multiselect-focus-border-color: #{$focus-color};
   --p-inputtext-focus-border-color: #{$focus-color};
-}
 
-:focus-visible {
-  outline: 3px solid $focus-color;
-  outline-offset: 2px;
-}
-
-// PrimeNG overrides — the border colour on focus is set by the primary palette,
-// not the focus-ring variables, so we target the focused states directly.
-.p-select.p-focus,
-.p-multiselect.p-focus,
-.p-inputtext.p-filled:enabled:focus,
-.p-inputtext:enabled:focus {
-  border-color: $focus-color !important;
-  box-shadow: none !important;
-  outline: 3px solid $focus-color !important;
-  outline-offset: 2px !important;
+  // PrimeNg focus overrides. Augmented specificity selector
+  .p-select.p-component.p-focus,
+  .p-multiselect.p-component.p-focus,
+  .p-inputtext.p-component.p-filled:enabled:focus,
+  .p-inputtext.p-component:enabled:focus {
+    border-color: $focus-color;
+    box-shadow: none;
+    outline: 3px solid $focus-color;
+    outline-offset: 2px;
+  }
 }
 
 body {
@@ -63,241 +66,9 @@ body {
 a {
   color: #003155;
   text-decoration: none;
-}
 
-a:hover {
-  text-decoration: underline;
-}
-
-.app-header {
-  background-color: #003155;
-  color: white;
-  padding: 0 24px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.header-title i {
-  font-size: 24px;
-}
-
-.header-nav {
-  display: flex;
-  gap: 24px;
-}
-
-.header-nav a {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 0;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  margin: auto;
-}
-
-.header-nav a:hover,
-.header-nav a.active {
-  color: white;
-  text-decoration: none;
-  border-bottom-color: white;
-}
-
-.country-list-page {
-  padding: 20px 0;
-}
-
-.filters-bar {
-  background: white;
-  padding: 16px 20px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
-}
-
-.filter-row {
-  display: flex;
-  gap: 16px;
-  align-items: end;
-  flex-wrap: wrap;
-}
-
-.filter-item {
-  flex: 1;
-  min-width: 180px;
-}
-
-.filter-item:last-child {
-  flex: 0;
-}
-
-.clear-btn {
-  background: none;
-  border: 1px solid #ccc;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #666;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.clear-btn:hover {
-  background: #f0f0f0;
-  border-color: #999;
-}
-
-.results-info {
-  padding: 8px 0;
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.country-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.country-card {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  height: 100%;
-  /* button reset */
-  border: none;
-  text-align: left;
-  font: inherit;
-  width: 100%;
-  padding: 0;
-  display: block;
-}
-
-.filter-item label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.selected-countries-form label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.info-row dt {
-  font-weight: 600;
-  color: #555;
-  min-width: 100px;
-}
-
-.info-row dd {
-  color: #333;
-  margin: 0;
-}
-
-.country-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.card-flag {
-  width: 100%;
-  height: 160px;
-  overflow: hidden;
-  background: #eee;
-}
-
-.card-flag img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.card-body {
-  padding: 16px;
-}
-
-.card-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #003155;
-  margin-bottom: 12px;
-}
-
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.info-row {
-  display: flex;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.info-row .label {
-  font-weight: 600;
-  color: #555;
-  min-width: 100px;
-}
-
-.info-row .value {
-  color: #333;
-}
-
-.loading {
-  text-align: center;
-  padding: 60px 20px;
-  color: #999;
-  font-size: 16px;
-}
-
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column;
-  }
-
-  .filter-item {
-    width: 100%;
-  }
-
-  .country-grid {
-    grid-template-columns: 1fr;
+  &:hover {
+    text-decoration: underline;
   }
 }
 

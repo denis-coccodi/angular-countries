@@ -5,6 +5,16 @@ $tablet: 768px;
     max-width: 400px;
     display: block;
   }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
 }
 
 .compare-countries-grid {
