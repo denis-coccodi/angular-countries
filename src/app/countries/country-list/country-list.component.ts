@@ -1,7 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { debounceTime, finalize } from 'rxjs/operators';
 import { CountryService } from '../../core/service/country.service';
 import { Country } from '../../shared/types/countries.model';
 
@@ -10,11 +16,12 @@ import { Country } from '../../shared/types/countries.model';
   standalone: false,
   templateUrl: './country-list.component.html',
   styleUrl: './country-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryListComponent implements OnInit, OnDestroy {
-  countries: Country[] = [];
-  filteredCountries: Country[] = [];
-  loading = false;
+  countries = signal<Country[]>([]);
+  filteredCountries = signal<Country[]>([]);
+  loading = signal(false);
   subscription = new Subscription();
 
   filterForm = new UntypedFormGroup({
@@ -23,9 +30,16 @@ export class CountryListComponent implements OnInit, OnDestroy {
     sortBy: new UntypedFormControl('name'),
   });
 
-  regions = ['Africa', 'Americas', 'Antarctic', 'Asia', 'Europe', 'Oceania'];
+  readonly regions = [
+    'Africa',
+    'Americas',
+    'Antarctic',
+    'Asia',
+    'Europe',
+    'Oceania',
+  ];
 
-  sortOptions = [
+  readonly sortOptions = [
     { label: 'Name', value: 'name' },
     { label: 'Population', value: 'population' },
     { label: 'Area', value: 'area' },
@@ -37,65 +51,53 @@ export class CountryListComponent implements OnInit, OnDestroy {
     this.loadCountries();
 
     this.subscription.add(
-      this.filterForm.get('search')!.valueChanges.subscribe((value: any) => {
-        this.applyFilters();
-      }),
-    );
-
-    this.subscription.add(
-      this.filterForm.get('region')!.valueChanges.subscribe((value: any) => {
-        this.applyFilters();
-      }),
-    );
-
-    this.subscription.add(
-      this.filterForm.get('sortBy')!.valueChanges.subscribe((value: any) => {
+      this.filterForm.valueChanges.pipe(debounceTime(300)).subscribe(() => {
         this.applyFilters();
       }),
     );
   }
 
   loadCountries(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.subscription.add(
       this.countryService
         .getAll()
-        .pipe(finalize(() => (this.loading = false)))
-        .subscribe((data: any) => {
-          this.countries = data;
-          this.filteredCountries = data;
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe((data: Country[]) => {
+          this.countries.set(data);
+          this.filteredCountries.set(data);
           this.applyFilters();
         }),
     );
   }
 
   applyFilters(): void {
-    let result = [...this.countries];
+    let result = [...this.countries()];
 
     const searchTerm = this.filterForm.get('search')!.value;
     if (searchTerm) {
-      result = result.filter((country: any) =>
+      result = result.filter((country: Country) =>
         country.name.common.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     const region = this.filterForm.get('region')!.value;
     if (region) {
-      result = result.filter((country: any) => country.region === region);
+      result = result.filter((country: Country) => country.region === region);
     }
 
     const sortBy = this.filterForm.get('sortBy')!.value;
     if (sortBy === 'name') {
-      result.sort((a: any, b: any) =>
+      result.sort((a: Country, b: Country) =>
         a.name.common.localeCompare(b.name.common),
       );
     } else if (sortBy === 'population') {
-      result.sort((a: any, b: any) => b.population - a.population);
+      result.sort((a: Country, b: Country) => b.population - a.population);
     } else if (sortBy === 'area') {
-      result.sort((a: any, b: any) => b.area - a.area);
+      result.sort((a: Country, b: Country) => b.area - a.area);
     }
 
-    this.filteredCountries = result;
+    this.filteredCountries.set(result);
   }
 
   clearFilters(): void {

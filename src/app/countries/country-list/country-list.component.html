@@ -45,17 +45,20 @@
   </div>
 
   <div class="results-info" aria-live="polite" aria-atomic="true">
-    <span>{{ filteredCountries.length }} countries found</span>
+    <span>{{ filteredCountries().length }} countries found</span>
   </div>
 
-  <div class="country-grid" role="region" aria-label="Country list" *ngIf="!loading">
-    <app-country-card
-      *ngFor="let country of filteredCountries"
-      [country]="country">
-    </app-country-card>
-  </div>
+  @if (!loading()) {
+    <div class="country-grid" role="region" aria-label="Country list">
+      @for (country of filteredCountries(); track country.cca3) {
+        <app-country-card [country]="country"></app-country-card>
+      }
+    </div>
+  }
 
-  <div class="loading" *ngIf="loading" role="status" aria-live="polite">
-    <p>Loading countries...</p>
-  </div>
+  @if (loading()) {
+    <div class="loading" role="status" aria-live="polite">
+      <p>Loading countries...</p>
+    </div>
+  }
 </div>

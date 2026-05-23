@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Country, FullCountry, isFullCountry } from '../../types/countries.model';
 
@@ -22,6 +22,7 @@ type countryCardPropertyDetail = {
   standalone: false,
   templateUrl: './country-card.component.html',
   styleUrl: './country-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryCardComponent {
   country = input.required<Country | FullCountry>();
