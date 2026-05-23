@@ -22,9 +22,35 @@
   }
 }
 
+// Unified focus colour for native elements and PrimeNG components
+$focus-color: #005ea2;
+
+:root {
+  --p-focus-ring-width: 3px;
+  --p-focus-ring-style: solid;
+  --p-focus-ring-color: #{$focus-color};
+  --p-focus-ring-offset: 2px;
+  --p-focus-ring-shadow: none;
+  --p-select-focus-border-color: #{$focus-color};
+  --p-multiselect-focus-border-color: #{$focus-color};
+  --p-inputtext-focus-border-color: #{$focus-color};
+}
+
 :focus-visible {
-  outline: 3px solid #005ea2;
+  outline: 3px solid $focus-color;
   outline-offset: 2px;
+}
+
+// PrimeNG overrides — the border colour on focus is set by the primary palette,
+// not the focus-ring variables, so we target the focused states directly.
+.p-select.p-focus,
+.p-multiselect.p-focus,
+.p-inputtext.p-filled:enabled:focus,
+.p-inputtext:enabled:focus {
+  border-color: $focus-color !important;
+  box-shadow: none !important;
+  outline: 3px solid $focus-color !important;
+  outline-offset: 2px !important;
 }
 
 body {
