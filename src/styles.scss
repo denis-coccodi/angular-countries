@@ -30,10 +30,6 @@ $focus-color: #005ea2;
   outline-offset: 2px;
 }
 
-[tabindex="-1"]:focus {
-  outline: none;
-}
-
 :root {
   --p-focus-ring-width: 3px;
   --p-focus-ring-style: solid;
