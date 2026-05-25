@@ -1,8 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-p-dropdown',
-  standalone: false,
+  standalone: true,
+  imports: [SelectModule, FormsModule],
   template: `
     <p-select
       [inputId]="inputId"

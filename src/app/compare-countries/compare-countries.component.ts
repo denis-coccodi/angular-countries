@@ -8,16 +8,18 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { CountryService } from '../core/service/country.service';
 import { Country } from '../shared/types/countries.model';
-import { CountryCardProperty } from '../shared/ui/country-card/country-card.component';
+import { CountryCardComponent, CountryCardProperty } from '../shared/ui/country-card/country-card.component';
+import { PMultiselectComponent } from '../shared/primeng-wrappers/multiselect/p-multiselect.component';
 
 @Component({
   selector: 'app-compare-countries',
-  standalone: false,
+  standalone: true,
+  imports: [ReactiveFormsModule, PMultiselectComponent, CountryCardComponent],
   templateUrl: './compare-countries.component.html',
   styleUrl: './compare-countries.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

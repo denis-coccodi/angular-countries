@@ -5,15 +5,19 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { debounceTime, finalize } from 'rxjs/operators';
 import { CountryService } from '../../core/service/country.service';
 import { Country } from '../../shared/types/countries.model';
+import { CountryCardComponent } from '../../shared/ui/country-card/country-card.component';
+import { PDropdownComponent } from '../../shared/primeng-wrappers/dropdown/p-dropdown.component';
+import { PInputTextComponent } from '../../shared/primeng-wrappers/input-text/p-input-text.component';
 
 @Component({
   selector: 'app-country-list',
-  standalone: false,
+  standalone: true,
+  imports: [ReactiveFormsModule, PInputTextComponent, PDropdownComponent, CountryCardComponent],
   templateUrl: './country-list.component.html',
   styleUrl: './country-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

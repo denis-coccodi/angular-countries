@@ -1,8 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-p-input-text',
-  standalone: false,
+  standalone: true,
+  imports: [InputTextModule],
   template: `
     <input
       pInputText

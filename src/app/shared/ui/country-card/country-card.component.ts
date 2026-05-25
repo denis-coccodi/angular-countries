@@ -19,7 +19,8 @@ type countryCardPropertyDetail = {
 
 @Component({
   selector: 'app-country-card',
-  standalone: false,
+  standalone: true,
+  imports: [],
   templateUrl: './country-card.component.html',
   styleUrl: './country-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

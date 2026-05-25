@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { provideLocationMocks } from '@angular/common/testing';
 import { AppComponent } from './app.component';
+import { PHeaderComponent } from './shared/primeng-wrappers/header/p-header.component';
 
-@Component({ selector: 'app-p-header', template: '', standalone: false })
+@Component({ selector: 'app-p-header', template: '', standalone: true })
 class PHeaderStub {
   @Input() title = '';
 }
@@ -16,10 +17,14 @@ describe('AppComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AppComponent, PHeaderStub],
-      imports: [RouterModule],
+      imports: [AppComponent],
       providers: [provideRouter([]), provideLocationMocks()],
-    }).compileComponents();
+    })
+      .overrideComponent(AppComponent, {
+        remove: { imports: [PHeaderComponent] },
+        add: { imports: [PHeaderStub] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
