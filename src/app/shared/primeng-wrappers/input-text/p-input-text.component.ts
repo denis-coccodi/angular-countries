@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 
@@ -16,20 +16,20 @@ import { InputTextModule } from 'primeng/inputtext';
     <input
       pInputText
       type="text"
-      [id]="id"
-      [attr.aria-label]="ariaLabel || null"
+      [id]="id()"
+      [attr.aria-label]="ariaLabel() || null"
       [value]="value"
       [disabled]="disabled"
-      [placeholder]="placeholder"
+      [placeholder]="placeholder()"
       (input)="onInput($event)"
       (blur)="onTouched()"
       [style]="{ width: '100%' }" />
   `,
 })
 export class PInputTextComponent implements ControlValueAccessor {
-  @Input() id = '';
-  @Input() ariaLabel = '';
-  @Input() placeholder = '';
+  readonly id = input('');
+  readonly ariaLabel = input('');
+  readonly placeholder = input('');
 
   value = '';
   disabled = false;

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { Country, FullCountry } from '../../shared/types/countries.model';
@@ -8,9 +8,9 @@ import { Country, FullCountry } from '../../shared/types/countries.model';
   providedIn: 'root',
 })
 export class CountryService {
-  countries = signal<Country[]>([]);
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  countries = signal<Country[]>([]);
 
   getAll(): Observable<Country[]> {
     return this.http

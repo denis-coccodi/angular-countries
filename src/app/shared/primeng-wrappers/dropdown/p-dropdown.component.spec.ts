@@ -22,10 +22,10 @@ describe('PDropdownComponent', () => {
   });
 
   describe('default input values', () => {
-    it('should default id to empty string', () => expect(component.id).toBe(''));
-    it('should default options to empty array', () => expect(component.options).toEqual([]));
-    it('should default placeholder to empty string', () => expect(component.placeholder).toBe(''));
-    it('should default showClear to false', () => expect(component.showClear).toBe(false));
+    it('should default id to empty string', () => expect(component.id()).toBe(''));
+    it('should default options to empty array', () => expect(component.options()).toEqual([]));
+    it('should default placeholder to empty string', () => expect(component.placeholder()).toBe(''));
+    it('should default showClear to false', () => expect(component.showClear()).toBe(false));
     it('should default value to null', () => expect(component.value).toBeNull());
     it('should default disabled to false', () => expect(component.disabled).toBe(false));
   });

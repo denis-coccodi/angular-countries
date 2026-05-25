@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MultiSelectModule } from 'primeng/multiselect';
 
@@ -17,7 +17,7 @@ const DEFAULT_ITEM_SIZE = 45;
   }],
   template: `
     <p-multiselect
-      [inputId]="id"
+      [inputId]="id()"
       [attr.aria-label]="ariaLabel() || null"
       [options]="options()"
       [ngModel]="value"
@@ -35,7 +35,7 @@ const DEFAULT_ITEM_SIZE = 45;
   `,
 })
 export class PMultiselectComponent<T> implements ControlValueAccessor {
-  @Input() id = '';
+  readonly id = input('');
   ariaLabel = input('');
   options = input<unknown[]>([]);
   placeholder = input('');

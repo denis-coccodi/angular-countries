@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideLocationMocks } from '@angular/common/testing';
@@ -7,7 +7,7 @@ import { PHeaderComponent } from './shared/primeng-wrappers/header/p-header.comp
 
 @Component({ selector: 'app-p-header', template: '', standalone: true })
 class PHeaderStub {
-  @Input() title = '';
+  readonly title = input('');
 }
 
 describe('AppComponent', () => {
@@ -44,7 +44,7 @@ describe('AppComponent', () => {
     const header = fixture.debugElement.children.find(
       (c) => c.name === 'app-p-header',
     );
-    expect(header?.componentInstance.title).toBe('Country Explorer');
+    expect(header?.componentInstance.title()).toBe('Country Explorer');
   });
 
   it('should render a skip-to-content link targeting #main-content', () => {

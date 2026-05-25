@@ -24,8 +24,8 @@ describe('PInputTextComponent', () => {
   });
 
   describe('default input values', () => {
-    it('should default id to empty string', () => expect(component.id).toBe(''));
-    it('should default placeholder to empty string', () => expect(component.placeholder).toBe(''));
+    it('should default id to empty string', () => expect(component.id()).toBe(''));
+    it('should default placeholder to empty string', () => expect(component.placeholder()).toBe(''));
     it('should default value to empty string', () => expect(component.value).toBe(''));
     it('should default disabled to false', () => expect(component.disabled).toBe(false));
   });

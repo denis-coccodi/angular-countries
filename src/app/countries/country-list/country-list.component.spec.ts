@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { of } from 'rxjs';
@@ -17,9 +17,9 @@ import { makeCountry } from '../../shared/utils/jest.utils';
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PInputTextStub), multi: true }],
 })
 class PInputTextStub implements ControlValueAccessor {
-  @Input() id = '';
-  @Input() ariaLabel = '';
-  @Input() placeholder = '';
+  readonly id = input('');
+  readonly ariaLabel = input('');
+  readonly placeholder = input('');
   writeValue() {}
   registerOnChange() {}
   registerOnTouched() {}
@@ -32,12 +32,12 @@ class PInputTextStub implements ControlValueAccessor {
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PDropdownStub), multi: true }],
 })
 class PDropdownStub implements ControlValueAccessor {
-  @Input() id = '';
-  @Input() options: unknown[] = [];
-  @Input() placeholder = '';
-  @Input() optionLabel = '';
-  @Input() optionValue = '';
-  @Input() showClear = false;
+  readonly id = input('');
+  readonly options = input<unknown[]>([]);
+  readonly placeholder = input('');
+  readonly optionLabel = input('');
+  readonly optionValue = input('');
+  readonly showClear = input(false);
   writeValue() {}
   registerOnChange() {}
   registerOnTouched() {}
@@ -45,8 +45,8 @@ class PDropdownStub implements ControlValueAccessor {
 
 @Component({ selector: 'app-country-card', template: '<div class="card-stub"></div>', standalone: true })
 class CountryCardStub {
-  @Input() country: unknown;
-  @Input() displayedInfo: unknown;
+  readonly country = input<unknown>();
+  readonly displayedInfo = input<unknown>();
 }
 
 const make = (common: string, region: string, population: number, area: number): Country =>

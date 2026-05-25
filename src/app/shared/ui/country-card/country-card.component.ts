@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Country, FullCountry, isFullCountry } from '../../types/countries.model';
 
@@ -26,6 +26,8 @@ type countryCardPropertyDetail = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryCardComponent {
+  private router = inject(Router);
+
   country = input.required<Country | FullCountry>();
   displayedInfo = input<CountryCardProperty[]>([
     'population',
@@ -67,8 +69,6 @@ export class CountryCardComponent {
       [],
     );
   });
-
-  constructor(private router: Router) {}
 
   getPopulation(): string {
     const { population } = this.country();

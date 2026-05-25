@@ -26,11 +26,11 @@ describe('PHeaderComponent', () => {
 
   describe('title', () => {
     it('should default title to empty string', () => {
-      expect(component.title).toBe('');
+      expect(component.title()).toBe('');
     });
 
     it('should render the title in the header', () => {
-      component.title = 'Country Explorer';
+      fixture.componentRef.setInput('title', 'Country Explorer');
       fixture.detectChanges();
       expect(el.querySelector('.header-title span')?.textContent?.trim()).toBe('Country Explorer');
     });

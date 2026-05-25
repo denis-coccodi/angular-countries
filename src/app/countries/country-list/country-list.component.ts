@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { debounceTime, finalize } from 'rxjs/operators';
@@ -23,6 +17,8 @@ import { PInputTextComponent } from '../../shared/primeng-wrappers/input-text/p-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryListComponent implements OnInit, OnDestroy {
+  private countryService = inject(CountryService);
+
   countries = signal<Country[]>([]);
   filteredCountries = signal<Country[]>([]);
   loading = signal(false);
@@ -48,8 +44,6 @@ export class CountryListComponent implements OnInit, OnDestroy {
     { label: 'Population', value: 'population' },
     { label: 'Area', value: 'area' },
   ];
-
-  constructor(private countryService: CountryService) {}
 
   ngOnInit(): void {
     this.loadCountries();

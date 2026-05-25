@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, signal } from '@angular/core';
+import { Component, forwardRef, signal, input } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { of } from 'rxjs';
@@ -16,9 +16,9 @@ import { makeCountry, makeFullCountry } from '../shared/utils/jest.utils';
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PMultiselectStub), multi: true }],
 })
 class PMultiselectStub implements ControlValueAccessor {
-  @Input() id = '';
-  @Input() options: unknown[] = [];
-  @Input() placeholder = '';
+  readonly id = input('');
+  readonly options = input<unknown[]>([]);
+  readonly placeholder = input('');
   writeValue() {}
   registerOnChange() {}
   registerOnTouched() {}
@@ -26,8 +26,8 @@ class PMultiselectStub implements ControlValueAccessor {
 
 @Component({ selector: 'app-country-card', template: '', standalone: true })
 class CountryCardStub {
-  @Input() country: unknown;
-  @Input() displayedInfo: unknown;
+  readonly country = input<unknown>();
+  readonly displayedInfo = input<unknown>();
 }
 
 describe('CompareCountriesComponent', () => {

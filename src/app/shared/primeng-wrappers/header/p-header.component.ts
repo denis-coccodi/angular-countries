@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -11,7 +11,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       <div class="header-content">
         <div class="header-title">
           <i class="pi pi-globe" aria-hidden="true"></i>
-          <span>{{ title }}</span>
+          <span>{{ title() }}</span>
         </div>
         <nav class="header-nav" aria-label="Main navigation">
           <a routerLink="/countries" routerLinkActive="active">Countries</a>
@@ -22,5 +22,5 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   `
 })
 export class PHeaderComponent {
-  @Input() title = '';
+  readonly title = input('');
 }

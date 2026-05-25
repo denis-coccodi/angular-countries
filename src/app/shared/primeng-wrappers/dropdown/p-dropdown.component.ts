@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 
@@ -13,30 +13,28 @@ import { SelectModule } from 'primeng/select';
     multi: true,
   }],
   template: `
-    <p-select
-      [inputId]="id"
-      [attr.aria-label]="ariaLabel || null"
-      [options]="options"
+    <p-select [inputId]="id()"
+      [attr.aria-label]="ariaLabel() || null"
+      [options]="options()"
       [ngModel]="value"
-      [placeholder]="placeholder"
-      [optionLabel]="optionLabel || undefined"
-      [optionValue]="optionValue || undefined"
-      [showClear]="showClear"
+      [placeholder]="placeholder()"
+      [optionLabel]="optionLabel() || undefined"
+      [optionValue]="optionValue() || undefined"
+      [showClear]="showClear()"
       [disabled]="disabled"
       (ngModelChange)="onValueChange($event)"
       (onBlur)="onTouched()"
-      [style]="{ width: '100%' }">
-    </p-select>
+      [style]="{ width: '100%' }" />
   `,
 })
 export class PDropdownComponent implements ControlValueAccessor {
-  @Input() id = '';
-  @Input() ariaLabel = '';
-  @Input() options: unknown[] = [];
-  @Input() placeholder = '';
-  @Input() optionLabel = '';
-  @Input() optionValue = '';
-  @Input() showClear = false;
+  readonly id = input('');
+  readonly ariaLabel = input('');
+  readonly options = input<unknown[]>([]);
+  readonly placeholder = input('');
+  readonly optionLabel = input('');
+  readonly optionValue = input('');
+  readonly showClear = input(false);
 
   value: unknown = null;
   disabled = false;

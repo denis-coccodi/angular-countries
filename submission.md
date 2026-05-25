@@ -33,6 +33,9 @@
 - Moved most scss away from the styles.scss and into components.
 - Replaced Karma with Jest.
 - Let Claude AI generate unit tests for components and services.
+- Transformed @Input and @Output into signal inputs.
+- Transformed constructor injections into class property injections.
+- Swapped out ngFor for @for and added a now mandatory track by to help with rendering.
 
 ## What I'd do with more time
 - Nx would be a nice addition, and the angular version could easily be upgraded to 21.
