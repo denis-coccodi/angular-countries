@@ -1,5 +1,36 @@
 @import 'primeicons/primeicons.css';
 
+:root {
+  // Brand
+  --color-primary: #003155;
+  --color-focus: #005ea2;
+
+  // Surfaces
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f5f5;
+  --color-surface-placeholder: #eeeeee;
+  --color-surface-hover: #f0f0f0;
+
+  // Text
+  --color-text: #333333;
+  --color-text-secondary: #555555;
+  --color-text-muted: #666666;
+  --color-text-subtle: #999999;
+
+  // Borders
+  --color-border: #cccccc;
+  --color-border-hover: #999999;
+
+  // On-primary (text/icons over the primary surface)
+  --color-on-primary: #ffffff;
+  --color-on-primary-muted: rgba(255, 255, 255, 0.9);
+
+  // Shadows
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,8 +41,8 @@
   position: absolute;
   top: -100%;
   left: 0;
-  background: #003155;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   padding: 8px 16px;
   text-decoration: none;
   z-index: 1000;
@@ -22,23 +53,20 @@
   }
 }
 
-// Unified focus colour for native elements and PrimeNG components
-$focus-color: #005ea2;
-
 :focus-visible {
-  outline: 3px solid $focus-color;
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
 :root {
   --p-focus-ring-width: 3px;
   --p-focus-ring-style: solid;
-  --p-focus-ring-color: #{$focus-color};
+  --p-focus-ring-color: var(--color-focus);
   --p-focus-ring-offset: 2px;
   --p-focus-ring-shadow: none;
-  --p-select-focus-border-color: #{$focus-color};
-  --p-multiselect-focus-border-color: #{$focus-color};
-  --p-inputtext-focus-border-color: #{$focus-color};
+  --p-select-focus-border-color: var(--color-focus);
+  --p-multiselect-focus-border-color: var(--color-focus);
+  --p-inputtext-focus-border-color: var(--color-focus);
 
   // PrimeNG adds .p-focus on both click and keyboard — suppress the outline here,
   // then restore it only for keyboard navigation via :focus-visible below.
@@ -46,7 +74,7 @@ $focus-color: #005ea2;
   .p-multiselect.p-component.p-focus,
   .p-inputtext.p-component.p-filled:enabled:focus,
   .p-inputtext.p-component:enabled:focus {
-    border-color: $focus-color;
+    border-color: var(--color-focus);
     box-shadow: none;
     outline: none;
   }
@@ -59,24 +87,23 @@ body:not([data-pointer-focus]) {
   .p-select.p-component:has(:focus-visible),
   .p-multiselect.p-component:has(:focus-visible),
   .p-inputtext.p-component:enabled:focus-visible {
-    outline: 3px solid $focus-color;
+    outline: 3px solid var(--color-focus);
     outline-offset: 2px;
   }
 }
 
 body {
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
   line-height: 1.6;
 }
 
 a {
-  color: #003155;
+  color: var(--color-primary);
   text-decoration: none;
 
   &:hover {
     text-decoration: underline;
   }
 }
-

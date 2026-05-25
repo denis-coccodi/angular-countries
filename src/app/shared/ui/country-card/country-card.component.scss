@@ -1,8 +1,8 @@
 .country-card {
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   height: 100%;
@@ -17,7 +17,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
   }
 }
 
@@ -25,7 +25,7 @@
   width: 100%;
   height: 160px;
   overflow: hidden;
-  background: #eee;
+  background: var(--color-surface-placeholder);
 
   img {
     display: block;
@@ -42,7 +42,7 @@
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #003155;
+  color: var(--color-primary);
   margin-bottom: 12px;
 }
 
@@ -59,12 +59,12 @@
 
   dt {
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-secondary);
     min-width: 100px;
   }
 
   dd {
-    color: #333;
+    color: var(--color-text);
     margin: 0;
   }
 }

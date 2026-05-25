@@ -3,10 +3,10 @@
 }
 
 .filters-bar {
-  background: white;
+  background: var(--color-surface);
   padding: 16px 20px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 20px;
 }
 
@@ -29,7 +29,7 @@
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-secondary);
     margin-bottom: 4px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
@@ -38,23 +38,23 @@
 
 .clear-btn {
   background: none;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 14px;
   white-space: nowrap;
 
   &:hover {
-    background: #f0f0f0;
-    border-color: #999;
+    background: var(--color-surface-hover);
+    border-color: var(--color-border-hover);
   }
 }
 
 .results-info {
   padding: 8px 0;
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 14px;
   margin-bottom: 12px;
 }
@@ -68,7 +68,7 @@
 .loading {
   text-align: center;
   padding: 60px 20px;
-  color: #999;
+  color: var(--color-text-subtle);
   font-size: 16px;
 }
 

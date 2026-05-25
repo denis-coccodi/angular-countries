@@ -10,7 +10,7 @@ $tablet: 768px;
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-secondary);
     margin-bottom: 4px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
@@ -34,4 +34,3 @@ $tablet: 768px;
     }
   }
 }
-
