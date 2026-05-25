@@ -1,7 +1,6 @@
 <button
   type="button"
   class="country-card"
-  [attr.aria-label]="'View details for ' + country().name.common"
   (click)="onCardClick()"
 >
   <div class="card-flag">
@@ -12,8 +11,8 @@
     <dl class="card-info">
       @for (property of infoMap(); track property.label) {
         <div class="info-row">
-          <dt class="label">{{property.label}}</dt>
-          <dd class="value">{{ property.value }}</dd>
+          <dt class="label" [attr.aria-label]="property.label + ': ' + property.value + ','">{{property.label}}</dt>
+          <dd class="value" aria-hidden="true">{{ property.value }}</dd>
         </div>
       }
     </dl>
