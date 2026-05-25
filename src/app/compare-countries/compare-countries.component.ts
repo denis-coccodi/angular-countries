@@ -40,6 +40,8 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     'languages',
     'borders',
   ]);
+  selectionControl = new FormControl<unknown[]>([]);
+
   selectedCountriesForm = new FormGroup({
     countries: new FormControl<Country[]>([]),
   });
@@ -69,6 +71,12 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
         }),
       );
     }
+
+    this.subscriptions.add(
+      this.selectionControl.valueChanges.subscribe((selection) => {
+        this.onCountrySelectionChange((selection ?? []) as Country[]);
+      }),
+    );
   }
 
   onCountrySelectionChange(event: Country[]): void {

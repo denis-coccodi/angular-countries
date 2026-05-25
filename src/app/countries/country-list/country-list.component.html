@@ -5,11 +5,10 @@
         <div class="filter-item">
           <label for="search-input">Search</label>
           <app-p-input-text
-            id="search-input"
+            inputId="search-input"
             ariaLabel="Search countries"
-            [value]="filterForm.get('search')!.value"
             placeholder="Search countries..."
-            (valueChange)="filterForm.get('search')!.setValue($event)">
+            formControlName="search">
           </app-p-input-text>
         </div>
 
@@ -18,10 +17,9 @@
           <app-p-dropdown
             inputId="region-select"
             [options]="regions"
-            [value]="filterForm.get('region')!.value"
             placeholder="All Regions"
             [showClear]="true"
-            (valueChange)="filterForm.get('region')!.setValue($event)">
+            formControlName="region">
           </app-p-dropdown>
         </div>
 
@@ -30,10 +28,9 @@
           <app-p-dropdown
             inputId="sort-select"
             [options]="sortOptions"
-            [value]="filterForm.get('sortBy')!.value"
             optionLabel="label"
             optionValue="value"
-            (valueChange)="filterForm.get('sortBy')!.setValue($event)">
+            formControlName="sortBy">
           </app-p-dropdown>
         </div>
 
