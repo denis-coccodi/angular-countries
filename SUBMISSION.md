@@ -31,14 +31,15 @@
 - Fixed Regions dropdown
 - Added some Accessibility improvements
 - Moved most scss away from the styles.scss and into components
+- Replaced Karma with Jest
 
 
 
 ## What I'd do with more time
+- I considered virtual scrolling, but didn't want to add the cdk library
 
 ## Tradeoffs
 - I added the interceptor to fix the Afghanistan flag, which is a hacky solution. However, given that I don't have access to the backend and the flag image is currently broken, this was the most practical way to ensure the application functions correctly without leaving a broken image in place.
 
 ## How to run
-
 - No new Steps
