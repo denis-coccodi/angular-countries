@@ -6,6 +6,7 @@ import { SelectModule } from 'primeng/select';
   selector: 'app-p-dropdown',
   standalone: true,
   imports: [SelectModule, FormsModule],
+  host: { '[attr.id]': 'null' },
   providers: [{
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => PDropdownComponent),
@@ -13,7 +14,7 @@ import { SelectModule } from 'primeng/select';
   }],
   template: `
     <p-select
-      [inputId]="inputId"
+      [inputId]="id"
       [attr.aria-label]="ariaLabel || null"
       [options]="options"
       [ngModel]="value"
@@ -29,7 +30,7 @@ import { SelectModule } from 'primeng/select';
   `,
 })
 export class PDropdownComponent implements ControlValueAccessor {
-  @Input() inputId = '';
+  @Input() id = '';
   @Input() ariaLabel = '';
   @Input() options: unknown[] = [];
   @Input() placeholder = '';

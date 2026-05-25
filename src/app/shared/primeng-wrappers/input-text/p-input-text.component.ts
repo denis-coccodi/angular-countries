@@ -6,6 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
   selector: 'app-p-input-text',
   standalone: true,
   imports: [InputTextModule],
+  host: { '[attr.id]': 'null' },
   providers: [{
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => PInputTextComponent),
@@ -15,7 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
     <input
       pInputText
       type="text"
-      [id]="inputId"
+      [id]="id"
       [attr.aria-label]="ariaLabel || null"
       [value]="value"
       [disabled]="disabled"
@@ -26,7 +27,7 @@ import { InputTextModule } from 'primeng/inputtext';
   `,
 })
 export class PInputTextComponent implements ControlValueAccessor {
-  @Input() inputId = '';
+  @Input() id = '';
   @Input() ariaLabel = '';
   @Input() placeholder = '';
 

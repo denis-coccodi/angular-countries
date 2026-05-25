@@ -5,7 +5,7 @@
         <div class="filter-item">
           <label for="search-input">Search</label>
           <app-p-input-text
-            inputId="search-input"
+            id="search-input"
             ariaLabel="Search countries"
             placeholder="Search countries..."
             formControlName="search">
@@ -15,7 +15,7 @@
         <div class="filter-item">
           <label for="region-select">Region</label>
           <app-p-dropdown
-            inputId="region-select"
+            id="region-select"
             [options]="regions"
             placeholder="All Regions"
             [showClear]="true"
@@ -26,7 +26,7 @@
         <div class="filter-item">
           <label for="sort-select">Sort by</label>
           <app-p-dropdown
-            inputId="sort-select"
+            id="sort-select"
             [options]="sortOptions"
             optionLabel="label"
             optionValue="value"

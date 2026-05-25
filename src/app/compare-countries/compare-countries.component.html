@@ -1,8 +1,7 @@
 <form [formGroup]="selectedCountriesForm" class="selected-countries-form">
   <label for="country-select">Select countries to compare</label>
   <app-p-multiselect
-    inputId="country-select"
-    ariaLabel="Select countries to compare"
+    id="country-select"
     [options]="countryOptions()"
     placeholder="Select country..."
     [formControl]="selectionControl"
