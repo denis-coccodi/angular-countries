@@ -36,7 +36,8 @@
 
 
 ## What I'd do with more time
-- I considered virtual scrolling, but didn't want to add the cdk library
+- I considered virtual scrolling, but it ended up requiring a lot of code just to keep track of how many lines were present at one time (depending on screen width), and hardcoding card height wasn't ideal either.
+Since it is very fast loading in the current state, I decided against it.
 
 ## Tradeoffs
 - I added the interceptor to fix the Afghanistan flag, which is a hacky solution. However, given that I don't have access to the backend and the flag image is currently broken, this was the most practical way to ensure the application functions correctly without leaving a broken image in place.
