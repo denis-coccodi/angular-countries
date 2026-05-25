@@ -40,6 +40,7 @@
 
 ## Tradeoffs
 - I added the interceptor to fix the Afghanistan flag, which is a hacky solution. However, given that I don't have access to the backend and the flag image is currently broken, this was the most practical way to ensure the application functions correctly without leaving a broken image in place.
+- When implementing focus styles for tabbing, I ran into a problem with primeNG. The outline would be shown both when selecting an input or multiselect with mouse and tabbing. To prevent the outline from appearing on focus through clicking too, extra code was necessary in the app component and styles.scss.
 
 ## How to run
 - No new Steps

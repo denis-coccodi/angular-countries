@@ -40,13 +40,25 @@ $focus-color: #005ea2;
   --p-multiselect-focus-border-color: #{$focus-color};
   --p-inputtext-focus-border-color: #{$focus-color};
 
-  // PrimeNg focus overrides. Augmented specificity selector
+  // PrimeNG adds .p-focus on both click and keyboard — suppress the outline here,
+  // then restore it only for keyboard navigation via :focus-visible below.
   .p-select.p-component.p-focus,
   .p-multiselect.p-component.p-focus,
   .p-inputtext.p-component.p-filled:enabled:focus,
   .p-inputtext.p-component:enabled:focus {
     border-color: $focus-color;
     box-shadow: none;
+    outline: none;
+  }
+
+}
+
+// Keyboard-only focus ring: gated on absence of pointer interaction because
+// browsers always set :focus-visible on text inputs even on mouse click.
+body:not([data-pointer-focus]) {
+  .p-select.p-component:has(:focus-visible),
+  .p-multiselect.p-component:has(:focus-visible),
+  .p-inputtext.p-component:enabled:focus-visible {
     outline: 3px solid $focus-color;
     outline-offset: 2px;
   }

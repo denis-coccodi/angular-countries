@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { PHeaderComponent } from './shared/primeng-wrappers/header/p-header.component';
 
@@ -11,4 +12,14 @@ import { PHeaderComponent } from './shared/primeng-wrappers/header/p-header.comp
 })
 export class AppComponent {
   title = 'Country Explorer';
+
+  constructor() {
+    const doc = inject(DOCUMENT);
+    // Track pointer vs keyboard focus. Browsers always set :focus-visible on text
+    // inputs even on click, so CSS alone can't distinguish for PrimeNG components.
+    doc.addEventListener('pointerdown', () => doc.body.setAttribute('data-pointer-focus', ''));
+    doc.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Tab') doc.body.removeAttribute('data-pointer-focus');
+    });
+  }
 }
