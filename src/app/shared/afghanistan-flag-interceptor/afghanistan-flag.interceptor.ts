@@ -8,6 +8,7 @@ import {
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Country, FullCountry } from '../types/countries.model';
 
 const COUNTRY_FLAG_TO_REPLACE = 'Islamic Republic of Afghanistan';
 const AFGHANISTAN_FLAG_PNG = 'https://flagcdn.com/w320/af.png';
@@ -27,7 +28,7 @@ export class AfghanistanFlagInterceptor implements HttpInterceptor {
           return event;
         }
 
-        const body = event.body.map((country: any) => {
+        const body = event.body.map((country: Country | FullCountry) => {
           if (country?.name.official === COUNTRY_FLAG_TO_REPLACE) {
             return {
               ...country,
