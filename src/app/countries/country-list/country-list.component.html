@@ -1,6 +1,6 @@
 <div class="country-list-page">
   <div class="filters-bar">
-    <form [formGroup]="filterForm">
+    <form [formRoot]="filterForm">
       <div class="filter-row">
         <div class="filter-item">
           <label for="search-input">Search</label>
@@ -8,7 +8,7 @@
             id="search-input"
             ariaLabel="Search countries"
             placeholder="Search countries..."
-            formControlName="search">
+            [formField]="filterForm.search">
           </app-p-input-text>
         </div>
 
@@ -19,7 +19,7 @@
             [options]="regions"
             placeholder="All Regions"
             [showClear]="true"
-            formControlName="region">
+            [formField]="filterForm.region">
           </app-p-dropdown>
         </div>
 
@@ -29,8 +29,7 @@
             id="sort-select"
             [options]="sortOptions"
             optionLabel="label"
-            optionValue="value"
-            formControlName="sortBy">
+            [formField]="filterForm.sortBy">
           </app-p-dropdown>
         </div>
 

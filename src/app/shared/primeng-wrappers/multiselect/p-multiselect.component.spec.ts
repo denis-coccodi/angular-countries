@@ -30,61 +30,23 @@ describe('PMultiselectComponent', () => {
     it('should default options to empty array', () => expect(component.options()).toEqual([]));
     it('should default placeholder to empty string', () => expect(component.placeholder()).toBe(''));
     it('should default showClear to false', () => expect(component.showClear()).toBe(false));
-    it('should default value to empty array', () => expect(component.value).toEqual([]));
-    it('should default disabled to false', () => expect(component.disabled).toBe(false));
+    it('should default value to empty array', () => expect(component.value()).toEqual([]));
+    it('should default disabled to false', () => expect(component.disabled()).toBe(false));
   });
 
-  describe('ControlValueAccessor — writeValue()', () => {
-    it('should update internal value with provided array', () => {
-      component.writeValue(['a', 'b']);
-      expect(component.value).toEqual(['a', 'b']);
-    });
-
-    it('should treat null as empty array', () => {
-      component.writeValue(['a']);
-      component.writeValue(null as any);
-      expect(component.value).toEqual([]);
+  describe('FormValueControl — value model', () => {
+    it('should update via value.set()', () => {
+      component.value.set(['a', 'b']);
+      expect(component.value()).toEqual(['a', 'b']);
     });
   });
 
-  describe('ControlValueAccessor — registerOnChange()', () => {
-    it('should call the registered callback when onValueChange fires', () => {
-      const onChange = jest.fn();
-      component.registerOnChange(onChange);
-      component.onValueChange(['x', 'y']);
-      expect(onChange).toHaveBeenCalledWith(['x', 'y']);
-    });
-  });
-
-  describe('ControlValueAccessor — registerOnTouched()', () => {
-    it('should call the registered callback when onTouched fires', () => {
+  describe('FormValueControl — touch output', () => {
+    it('should be emittable', () => {
       const onTouched = jest.fn();
-      component.registerOnTouched(onTouched);
-      component.onTouched();
+      component.touch.subscribe(onTouched);
+      component.touch.emit();
       expect(onTouched).toHaveBeenCalled();
-    });
-  });
-
-  describe('ControlValueAccessor — setDisabledState()', () => {
-    it('should set disabled to true', () => {
-      component.setDisabledState(true);
-      expect(component.disabled).toBe(true);
-    });
-
-    it('should set disabled to false', () => {
-      component.setDisabledState(true);
-      component.setDisabledState(false);
-      expect(component.disabled).toBe(false);
-    });
-  });
-
-  describe('onValueChange()', () => {
-    it('should update internal value and call onChange', () => {
-      const onChange = jest.fn();
-      component.registerOnChange(onChange);
-      component.onValueChange(['foo', 'bar']);
-      expect(component.value).toEqual(['foo', 'bar']);
-      expect(onChange).toHaveBeenCalledWith(['foo', 'bar']);
     });
   });
 });

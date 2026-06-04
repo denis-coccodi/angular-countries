@@ -1,6 +1,6 @@
-import { Component, forwardRef, signal, input } from '@angular/core';
+import { Component, input, model, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormValueControl } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { CompareCountriesComponent } from './compare-countries.component';
@@ -14,15 +14,13 @@ import { makeCountry, makeFullCountry } from '../shared/utils/jest.utils';
   selector: 'app-p-multiselect',
   template: '',
   standalone: true,
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PMultiselectStub), multi: true }],
 })
-class PMultiselectStub implements ControlValueAccessor {
+class PMultiselectStub implements FormValueControl<unknown[]> {
   readonly id = input('');
   readonly options = input<unknown[]>([]);
   readonly placeholder = input('');
-  writeValue() {}
-  registerOnChange() {}
-  registerOnTouched() {}
+  readonly value = model<unknown[]>([]);
+  readonly disabled = input(false);
 }
 
 @Component({ selector: 'app-country-card', template: '', standalone: true })
@@ -90,6 +88,7 @@ async function setup(opts: SetupOptions = {}): Promise<{
   const fixture = TestBed.createComponent(CompareCountriesComponent);
   const component = fixture.componentInstance;
   fixture.detectChanges();
+  TestBed.tick();
 
   return { fixture, component, service, router, route };
 }
@@ -109,17 +108,6 @@ describe('CompareCountriesComponent', () => {
     it('should not call getAll when countries are already loaded', async () => {
       const { service } = await setup({ preloaded: [DEU, FRA] });
       expect(service.getAll).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('countryOptions computed', () => {
-    it('should map loaded countries to label/value options', async () => {
-      const { component } = await setup();
-      const options = component.countryOptions();
-      expect(options).toEqual([
-        { label: 'Germany', value: DEU },
-        { label: 'France', value: FRA },
-      ]);
     });
   });
 
@@ -149,22 +137,23 @@ describe('CompareCountriesComponent', () => {
       expect(service.getByCodes).toHaveBeenCalledWith(['DEU']);
     });
 
-    it('should update the selectedCountriesForm with the fetched full countries', async () => {
+    it('should update selectedCountries with the fetched full countries', async () => {
       const fullDeu = makeFullCountry(DEU);
       const { component } = await setup({ getByCodesReturns: [fullDeu] });
 
       component.onCountrySelectionChange([DEU]);
+      TestBed.tick();
 
-      expect(component.selectedCountriesForm.get('countries')?.value).toEqual([fullDeu]);
+      expect(component.selectedCountries()).toEqual([fullDeu]);
     });
 
-    it('should set form to empty selection without calling getByCodes when selection is empty', async () => {
+    it('should set selectedCountries to empty without calling getByCodes when selection is empty', async () => {
       const { component, service } = await setup();
 
       component.onCountrySelectionChange([]);
 
       expect(service.getByCodes).not.toHaveBeenCalled();
-      expect(component.selectedCountriesForm.get('countries')?.value).toEqual([]);
+      expect(component.selectedCountries()).toEqual([]);
     });
   });
 
@@ -177,9 +166,9 @@ describe('CompareCountriesComponent', () => {
         getByCodesReturns: [fullDeu],
       });
 
-      expect(component.selectionControl.value).toEqual([DEU]);
+      expect(component.selectionModel()).toEqual([DEU]);
       expect(service.getByCodes).toHaveBeenCalledWith(['DEU']);
-      expect(component.selectedCountriesForm.get('countries')?.value).toEqual([fullDeu]);
+      expect(component.selectedCountries()).toEqual([fullDeu]);
     });
 
     it('should restore the selection after getAll resolves when countries were not preloaded', async () => {
@@ -189,9 +178,9 @@ describe('CompareCountriesComponent', () => {
         getByCodesReturns: [fullFra],
       });
 
-      expect(component.selectionControl.value).toEqual([FRA]);
+      expect(component.selectionModel()).toEqual([FRA]);
       expect(service.getByCodes).toHaveBeenCalledWith(['FRA']);
-      expect(component.selectedCountriesForm.get('countries')?.value).toEqual([fullFra]);
+      expect(component.selectedCountries()).toEqual([fullFra]);
     });
 
     it('should restore multiple codes preserving the order from the available country list', async () => {
@@ -200,7 +189,7 @@ describe('CompareCountriesComponent', () => {
         queryParam: 'FRA,DEU',
       });
 
-      expect(component.selectionControl.value).toEqual([DEU, FRA]);
+      expect(component.selectionModel()).toEqual([DEU, FRA]);
     });
 
     it('should ignore unknown codes in the query param', async () => {
@@ -209,14 +198,14 @@ describe('CompareCountriesComponent', () => {
         queryParam: 'ZZZ',
       });
 
-      expect(component.selectionControl.value).toEqual([]);
+      expect(component.selectionModel()).toEqual([]);
       expect(service.getByCodes).not.toHaveBeenCalled();
     });
 
     it('should leave the selection empty when there is no countries query param', async () => {
       const { component, service } = await setup({ preloaded: [DEU, FRA] });
 
-      expect(component.selectionControl.value).toEqual([]);
+      expect(component.selectionModel()).toEqual([]);
       expect(service.getByCodes).not.toHaveBeenCalled();
     });
   });
@@ -225,7 +214,8 @@ describe('CompareCountriesComponent', () => {
     it('should write the cca3 codes to the URL when the selection changes', async () => {
       const { component, router, route } = await setup();
 
-      component.selectionControl.setValue([DEU, FRA]);
+      component.selectionModel.set([DEU, FRA]);
+      TestBed.tick();
 
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: route,
@@ -242,7 +232,8 @@ describe('CompareCountriesComponent', () => {
       });
       router.navigate.mockClear();
 
-      component.selectionControl.setValue([]);
+      component.selectionModel.set([]);
+      TestBed.tick();
 
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: route,

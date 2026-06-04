@@ -1,17 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  effect,
   inject,
   OnDestroy,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormField, FormRoot, form } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { startWith } from 'rxjs/operators';
 import { CountryService } from '../core/service/country.service';
 import { PMultiselectComponent } from '../shared/primeng-wrappers/multiselect/p-multiselect.component';
 import { Country } from '../shared/types/countries.model';
@@ -20,7 +19,7 @@ import { CountryCardComponent, CountryCardProperty } from '../shared/ui/country-
 @Component({
   selector: 'app-compare-countries',
   standalone: true,
-  imports: [ReactiveFormsModule, PMultiselectComponent, CountryCardComponent],
+  imports: [FormRoot, FormField, PMultiselectComponent, CountryCardComponent],
   templateUrl: './compare-countries.component.html',
   styleUrl: './compare-countries.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,38 +42,25 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     'languages',
     'borders',
   ]);
-  selectionControl = new FormControl<unknown[]>([]);
 
-  selectedCountriesForm = new FormGroup({
-    countries: new FormControl<Country[]>([]),
-  });
+  selectionModel = signal<Country[]>([]);
+  selectionForm = form(this.selectionModel);
 
-  // Computed
-  countryOptions = computed(() =>
-    this.countries().map((country) => ({
-      label: country.name.common,
-      value: country,
-    })),
-  );
-
-  selectedCountries = toSignal(
-    this.selectedCountriesForm
-      .get('countries')!
-      .valueChanges.pipe(startWith([])),
-    { initialValue: [] },
-  );
+  selectedCountries = signal<Country[]>([]);
 
   subscriptions = new Subscription();
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.selectionControl.valueChanges.subscribe((selection) => {
-        const list = (selection ?? []) as Country[];
-        this.onCountrySelectionChange(list);
-        this.syncQueryParams(list);
-      }),
-    );
+  constructor() {
+    effect(() => {
+      const selection = this.selectionModel();
+      untracked(() => {
+        this.onCountrySelectionChange(selection);
+        this.syncQueryParams(selection);
+      });
+    });
+  }
 
+  ngOnInit(): void {
     if (this.countries().length === 0) {
       this.subscriptions.add(
         this.countriesService.getAll().subscribe((countries) => {
@@ -94,11 +80,11 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
         this.countriesService
           .getByCodes(selectedCountriesCodes)
           .subscribe((countries) => {
-            this.selectedCountriesForm.get('countries')?.setValue(countries);
+            this.selectedCountries.set(countries);
           }),
       );
     } else {
-      this.selectedCountriesForm.get('countries')?.setValue(event);
+      this.selectedCountries.set(event);
     }
   }
 
@@ -109,7 +95,7 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     if (!codes.length) return;
     const matched = available.filter((c) => codes.includes(c.cca3));
     if (matched.length) {
-      this.selectionControl.setValue(matched);
+      this.selectionModel.set(matched);
     }
   }
 
@@ -127,4 +113,3 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 }
-

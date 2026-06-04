@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Country, FullCountry, isFullCountry } from '../../types/countries.model';
+import { Country, countryCardPropertyDetail, FullCountry, isFullCountry } from '../../types/countries.model';
 
 export type CountryCardProperty =
   | 'population'
@@ -11,11 +11,6 @@ export type CountryCardProperty =
   | 'area'
   | 'timezones'
   | 'borders';
-
-type countryCardPropertyDetail = {
-  value: string;
-  label: string;
-};
 
 @Component({
   selector: 'app-country-card',

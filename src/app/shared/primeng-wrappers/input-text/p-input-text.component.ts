@@ -1,5 +1,5 @@
-import { Component, forwardRef, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, input, model, output } from '@angular/core';
+import { FormValueControl } from '@angular/forms/signals';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
@@ -7,54 +7,30 @@ import { InputTextModule } from 'primeng/inputtext';
   standalone: true,
   imports: [InputTextModule],
   host: { '[attr.id]': 'null' },
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => PInputTextComponent),
-    multi: true,
-  }],
   template: `
     <input
       pInputText
       type="text"
       [id]="id()"
       [attr.aria-label]="ariaLabel() || null"
-      [value]="value"
-      [disabled]="disabled"
+      [value]="value()"
+      [disabled]="disabled()"
       [placeholder]="placeholder()"
       (input)="onInput($event)"
-      (blur)="onTouched()"
+      (blur)="touch.emit()"
       [style]="{ width: '100%' }" />
   `,
 })
-export class PInputTextComponent implements ControlValueAccessor {
+export class PInputTextComponent implements FormValueControl<string> {
   readonly id = input('');
   readonly ariaLabel = input('');
   readonly placeholder = input('');
 
-  value = '';
-  disabled = false;
-  onChange: (v: string) => void = () => {};
-  onTouched: () => void = () => {};
-
-  writeValue(value: string): void {
-    this.value = value ?? '';
-  }
-
-  registerOnChange(fn: (v: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
+  readonly value = model('');
+  readonly disabled = input(false);
+  readonly touch = output<void>();
 
   onInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.value = value;
-    this.onChange(value);
+    this.value.set((event.target as HTMLInputElement).value);
   }
 }

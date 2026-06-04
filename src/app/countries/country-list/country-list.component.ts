@@ -1,17 +1,38 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
-import { ReactiveFormsModule, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
+import { FormField, FormRoot, form } from '@angular/forms/signals';
 import { Subscription } from 'rxjs';
-import { debounceTime, finalize } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { CountryService } from '../../core/service/country.service';
 import { Country } from '../../shared/types/countries.model';
 import { CountryCardComponent } from '../../shared/ui/country-card/country-card.component';
 import { PDropdownComponent } from '../../shared/primeng-wrappers/dropdown/p-dropdown.component';
 import { PInputTextComponent } from '../../shared/primeng-wrappers/input-text/p-input-text.component';
 
+type SortBy = 'name' | 'population' | 'area';
+
+interface SortOption {
+  readonly label: string;
+  readonly value: SortBy;
+}
+
+const SORT_OPTIONS: readonly SortOption[] = [
+  { label: 'Name', value: 'name' },
+  { label: 'Population', value: 'population' },
+  { label: 'Area', value: 'area' },
+];
+
+interface FilterModel {
+  search: string;
+  region: string;
+  sortBy: SortOption;
+}
+
+const DEFAULT_FILTERS: FilterModel = { search: '', region: '', sortBy: SORT_OPTIONS[0] };
+
 @Component({
   selector: 'app-country-list',
   standalone: true,
-  imports: [ReactiveFormsModule, PInputTextComponent, PDropdownComponent, CountryCardComponent],
+  imports: [FormRoot, FormField, PInputTextComponent, PDropdownComponent, CountryCardComponent],
   templateUrl: './country-list.component.html',
   styleUrl: './country-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,14 +41,34 @@ export class CountryListComponent implements OnInit, OnDestroy {
   private countryService = inject(CountryService);
 
   countries = signal<Country[]>([]);
-  filteredCountries = signal<Country[]>([]);
   loading = signal(false);
   subscription = new Subscription();
 
-  filterForm = new UntypedFormGroup({
-    search: new UntypedFormControl(''),
-    region: new UntypedFormControl(''),
-    sortBy: new UntypedFormControl('name'),
+  filterModel = signal<FilterModel>({ ...DEFAULT_FILTERS });
+  filterForm = form(this.filterModel);
+
+  filteredCountries = computed<Country[]>(() => {
+    const { search, region, sortBy } = this.filterModel();
+    let result = [...this.countries()];
+
+    if (search) {
+      const term = search.toLowerCase();
+      result = result.filter((country) => country.name.common.toLowerCase().includes(term));
+    }
+
+    if (region) {
+      result = result.filter((country) => country.region === region);
+    }
+
+    if (sortBy.value === 'name') {
+      result.sort((a, b) => a.name.common.localeCompare(b.name.common));
+    } else if (sortBy.value === 'population') {
+      result.sort((a, b) => b.population - a.population);
+    } else if (sortBy.value === 'area') {
+      result.sort((a, b) => b.area - a.area);
+    }
+
+    return result;
   });
 
   readonly regions = [
@@ -39,20 +80,10 @@ export class CountryListComponent implements OnInit, OnDestroy {
     'Oceania',
   ];
 
-  readonly sortOptions = [
-    { label: 'Name', value: 'name' },
-    { label: 'Population', value: 'population' },
-    { label: 'Area', value: 'area' },
-  ];
+  readonly sortOptions = SORT_OPTIONS;
 
   ngOnInit(): void {
     this.loadCountries();
-
-    this.subscription.add(
-      this.filterForm.valueChanges.pipe(debounceTime(300)).subscribe(() => {
-        this.applyFilters();
-      }),
-    );
   }
 
   loadCountries(): void {
@@ -61,51 +92,15 @@ export class CountryListComponent implements OnInit, OnDestroy {
       this.countryService
         .getAll()
         .pipe(finalize(() => this.loading.set(false)))
-        .subscribe((data: Country[]) => {
-          this.countries.set(data);
-          this.filteredCountries.set(data);
-          this.applyFilters();
-        }),
+        .subscribe((data: Country[]) => this.countries.set(data)),
     );
   }
 
-  applyFilters(): void {
-    let result = [...this.countries()];
-
-    const searchTerm = this.filterForm.get('search')!.value;
-    if (searchTerm) {
-      result = result.filter((country: Country) =>
-        country.name.common.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    const region = this.filterForm.get('region')!.value;
-    if (region) {
-      result = result.filter((country: Country) => country.region === region);
-    }
-
-    const sortBy = this.filterForm.get('sortBy')!.value;
-    if (sortBy === 'name') {
-      result.sort((a: Country, b: Country) =>
-        a.name.common.localeCompare(b.name.common),
-      );
-    } else if (sortBy === 'population') {
-      result.sort((a: Country, b: Country) => b.population - a.population);
-    } else if (sortBy === 'area') {
-      result.sort((a: Country, b: Country) => b.area - a.area);
-    }
-
-    this.filteredCountries.set(result);
-  }
-
   clearFilters(): void {
-    this.filterForm.get('search')!.setValue('');
-    this.filterForm.get('region')!.setValue('');
-    this.filterForm.get('sortBy')!.setValue('name');
+    this.filterModel.set({ ...DEFAULT_FILTERS });
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
 }
-
