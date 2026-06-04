@@ -1,0 +1,109 @@
+{
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "name": "country-explorer",
+  "projectType": "application",
+  "generators": {
+    "@schematics/angular:component": {
+      "style": "scss",
+      "skipTests": false,
+      "standalone": true
+    },
+    "@schematics/angular:class": {
+      "skipTests": false
+    },
+    "@schematics/angular:directive": {
+      "skipTests": false,
+      "standalone": true
+    },
+    "@schematics/angular:guard": {
+      "skipTests": false
+    },
+    "@schematics/angular:interceptor": {
+      "skipTests": false
+    },
+    "@schematics/angular:pipe": {
+      "skipTests": false,
+      "standalone": true
+    },
+    "@schematics/angular:resolver": {
+      "skipTests": false
+    },
+    "@schematics/angular:service": {
+      "skipTests": false
+    }
+  },
+  "sourceRoot": "src",
+  "prefix": "app",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "options": {
+        "outputPath": "dist/country-explorer",
+        "index": "src/index.html",
+        "browser": "src/main.ts",
+        "polyfills": [
+          "zone.js"
+        ],
+        "tsConfig": "tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "public"
+          }
+        ],
+        "styles": [
+          "src/styles.scss"
+        ],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "1MB",
+              "maximumError": "2MB"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kB",
+              "maximumError": "8kB"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production",
+      "outputs": [
+        "{options.outputPath}"
+      ]
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "country-explorer:build:production"
+        },
+        "development": {
+          "buildTarget": "country-explorer:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n"
+    },
+    "test": {
+      "executor": "@angular-devkit/build-angular:jest",
+      "options": {
+        "tsConfig": "tsconfig.spec.json"
+      }
+    }
+  }
+}
