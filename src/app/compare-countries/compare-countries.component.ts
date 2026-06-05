@@ -57,12 +57,9 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
 
   MAXIMUM_COMPARABLE_COUNTRIES = MAXIMUM_COMPARABLE_COUNTRIES;
 
-  private readonly restored = signal(false);
-
   constructor() {
     effect(() => {
       const selection = this.selectionModel();
-      if (!this.restored()) return;
       untracked(() => {
         this.onCountrySelectionChange(selection);
         this.syncQueryParams(selection);
@@ -90,10 +87,6 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
         const currentStr = this.selectionModel()
           .map((c) => c.cca3)
           .join(',');
-        if (paramStr === currentStr) {
-          this.restored.set(true);
-          return;
-        }
         const codes = paramStr
           .split(',')
           .filter(Boolean)
@@ -102,7 +95,6 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
           .filter((c) => codes.includes(c.cca3))
           .slice(0, MAXIMUM_COMPARABLE_COUNTRIES);
         this.selectionModel.set(matched);
-        this.restored.set(true);
       }),
     );
   }
@@ -136,4 +128,3 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 }
-
