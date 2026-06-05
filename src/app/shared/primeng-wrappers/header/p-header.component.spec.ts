@@ -58,7 +58,7 @@ describe('PHeaderComponent', () => {
     });
 
     it('should render the globe icon', () => {
-      expect(el.querySelector('.pi.pi-globe')).toBeTruthy();
+      expect(el.querySelector('svg.header-icon')).toBeTruthy();
     });
   });
 });

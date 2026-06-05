@@ -1,0 +1,54 @@
+<div class="app-dropdown" [class.open]="open()" [class.disabled]="disabled()">
+  <button
+    #trigger
+    type="button"
+    class="app-dropdown-trigger"
+    [id]="id()"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="listboxId"
+    [disabled]="disabled()"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+    (blur)="onTriggerBlur()">
+    <span class="app-dropdown-value" [class.placeholder]="!hasValue()">
+      {{ displayText() }}
+    </span>
+    @if (showClear() && hasValue()) {
+      <span
+        role="button"
+        tabindex="-1"
+        class="app-dropdown-clear"
+        aria-label="Clear selection"
+        (click)="clear($event)"
+        (keydown.enter)="clear($event)"
+        (keydown.space)="clear($event)">×</span>
+    }
+    <span class="app-dropdown-caret" aria-hidden="true">▾</span>
+  </button>
+
+  @if (open()) {
+    <ul
+      #listbox
+      ngListbox
+      tabindex="0"
+      [id]="listboxId"
+      class="app-dropdown-popup"
+      focusMode="activedescendant"
+      selectionMode="explicit"
+      [values]="selectedValues()"
+      (valuesChange)="onListboxChange($event)"
+      (keydown)="onListboxKeydown($event)">
+      @for (opt of options(); track $index) {
+        <li
+          ngOption
+          class="app-dropdown-option"
+          [value]="opt"
+          [label]="labelFor(opt)">
+          {{ labelFor(opt) }}
+        </li>
+      }
+    </ul>
+  }
+</div>

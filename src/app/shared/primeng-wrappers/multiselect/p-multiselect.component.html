@@ -1,0 +1,75 @@
+<div class="app-multiselect" [class.open]="open()" [class.disabled]="disabled()">
+  <button
+    #trigger
+    type="button"
+    class="app-multiselect-trigger"
+    [id]="id()"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="listboxId"
+    [disabled]="disabled()"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
+    (blur)="onTriggerBlur()">
+    <span class="app-multiselect-value" [class.placeholder]="value().length === 0">
+      @if (value().length === 0) {
+        {{ placeholder() }}
+      } @else {
+        <span class="app-multiselect-chips">
+          @for (item of value(); track $index) {
+            <span class="app-multiselect-chip">
+              <span class="app-multiselect-chip-label">{{ labelFor(item) }}</span>
+              <span
+                role="button"
+                tabindex="-1"
+                class="app-multiselect-chip-remove"
+                aria-label="Remove"
+                (click)="removeItem(item, $event)"
+                (keydown.enter)="removeItem(item, $event)"
+                (keydown.space)="removeItem(item, $event)">×</span>
+            </span>
+          }
+        </span>
+      }
+    </span>
+    @if (showClear() && value().length > 0) {
+      <span
+        role="button"
+        tabindex="-1"
+        class="app-multiselect-clear"
+        aria-label="Clear selection"
+        (click)="clear($event)"
+        (keydown.enter)="clear($event)"
+        (keydown.space)="clear($event)">×</span>
+    }
+    <span class="app-multiselect-caret" aria-hidden="true">▾</span>
+  </button>
+
+  @if (open()) {
+    <ul
+      #listbox
+      ngListbox
+      multi
+      tabindex="0"
+      [id]="listboxId"
+      class="app-multiselect-popup"
+      focusMode="activedescendant"
+      selectionMode="explicit"
+      [values]="value()"
+      (valuesChange)="onListboxChange($event)"
+      (keydown)="onListboxKeydown($event)">
+      @for (opt of options(); track $index) {
+        <li
+          ngOption
+          class="app-multiselect-option"
+          [value]="opt"
+          [label]="labelFor(opt)"
+          [disabled]="isOptionDisabled(opt)">
+          <span class="app-multiselect-checkbox" aria-hidden="true"></span>
+          <span class="app-multiselect-option-label">{{ labelFor(opt) }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

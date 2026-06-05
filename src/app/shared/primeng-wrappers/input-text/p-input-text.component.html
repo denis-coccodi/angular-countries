@@ -1,0 +1,10 @@
+<input
+  class="app-input-text"
+  type="text"
+  [id]="id()"
+  [attr.aria-label]="ariaLabel() || null"
+  [value]="value()"
+  [disabled]="disabled()"
+  [placeholder]="placeholder()"
+  (input)="onInput($event)"
+  (blur)="touch.emit()" />

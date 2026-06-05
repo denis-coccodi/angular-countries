@@ -1,25 +1,12 @@
 import { Component, input, model, output } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
-import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-p-input-text',
   standalone: true,
-  imports: [InputTextModule],
   host: { '[attr.id]': 'null' },
-  template: `
-    <input
-      pInputText
-      type="text"
-      [id]="id()"
-      [attr.aria-label]="ariaLabel() || null"
-      [value]="value()"
-      [disabled]="disabled()"
-      [placeholder]="placeholder()"
-      (input)="onInput($event)"
-      (blur)="touch.emit()"
-      [style]="{ width: '100%' }" />
-  `,
+  templateUrl: './p-input-text.component.html',
+  styleUrl: './p-input-text.component.scss',
 })
 export class PInputTextComponent implements FormValueControl<string> {
   readonly id = input('');
