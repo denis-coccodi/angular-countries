@@ -8,13 +8,18 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { FormField, FormRoot, form } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CountryService } from '../core/service/country.service';
 import { PMultiselectComponent } from '../shared/primeng-wrappers/multiselect/p-multiselect.component';
 import { Country } from '../shared/types/countries.model';
-import { CountryCardComponent, CountryCardProperty } from '../shared/ui/country-card/country-card.component';
+import {
+  CountryCardComponent,
+  CountryCardProperty,
+} from '../shared/ui/country-card/country-card.component';
+
+const MAXIMUM_COMPARABLE_COUNTRIES = 3;
 
 @Component({
   selector: 'app-compare-countries',
@@ -50,9 +55,14 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
 
   subscriptions = new Subscription();
 
+  MAXIMUM_COMPARABLE_COUNTRIES = MAXIMUM_COMPARABLE_COUNTRIES;
+
+  private readonly restored = signal(false);
+
   constructor() {
     effect(() => {
       const selection = this.selectionModel();
+      if (!this.restored()) return;
       untracked(() => {
         this.onCountrySelectionChange(selection);
         this.syncQueryParams(selection);
@@ -65,12 +75,36 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         this.countriesService.getAll().subscribe((countries) => {
           this.countries.set(countries);
-          this.restoreSelectionFromQueryParams(countries);
+          this.watchQueryParams();
         }),
       );
     } else {
-      this.restoreSelectionFromQueryParams(this.countries());
+      this.watchQueryParams();
     }
+  }
+
+  private watchQueryParams(): void {
+    this.subscriptions.add(
+      this.route.queryParamMap.subscribe((params) => {
+        const paramStr = params.get('countries') ?? '';
+        const currentStr = this.selectionModel()
+          .map((c) => c.cca3)
+          .join(',');
+        if (paramStr === currentStr) {
+          this.restored.set(true);
+          return;
+        }
+        const codes = paramStr
+          .split(',')
+          .filter(Boolean)
+          .map((code) => code.toLocaleUpperCase());
+        const matched = this.countries()
+          .filter((c) => codes.includes(c.cca3))
+          .slice(0, MAXIMUM_COMPARABLE_COUNTRIES);
+        this.selectionModel.set(matched);
+        this.restored.set(true);
+      }),
+    );
   }
 
   onCountrySelectionChange(event: Country[]): void {
@@ -88,17 +122,6 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     }
   }
 
-  private restoreSelectionFromQueryParams(available: Country[]): void {
-    const param = this.route.snapshot.queryParamMap.get('countries');
-    if (!param) return;
-    const codes = param.split(',').filter(Boolean);
-    if (!codes.length) return;
-    const matched = available.filter((c) => codes.includes(c.cca3));
-    if (matched.length) {
-      this.selectionModel.set(matched);
-    }
-  }
-
   private syncQueryParams(selected: Country[]): void {
     const codes = selected.map((c) => c.cca3);
     this.router.navigate([], {
@@ -113,3 +136,4 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 }
+

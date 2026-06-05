@@ -1,8 +1,8 @@
 import { Component, input, model, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormValueControl } from '@angular/forms/signals';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
 import { CompareCountriesComponent } from './compare-countries.component';
 import { CountryService } from '../core/service/country.service';
 import { Country } from '../shared/types/countries.model';
@@ -39,7 +39,10 @@ type Service = {
 };
 
 type RouterStub = { navigate: jest.Mock };
-type RouteStub = { snapshot: { queryParamMap: { get: (key: string) => string | null } } };
+type RouteStub = {
+  snapshot: { queryParamMap: { get: (key: string) => string | null } };
+  queryParamMap: Observable<ParamMap>;
+};
 
 interface SetupOptions {
   preloaded?: Country[];
@@ -63,12 +66,16 @@ async function setup(opts: SetupOptions = {}): Promise<{
     getByCodes: jest.fn().mockReturnValue(of(opts.getByCodesReturns ?? [])),
   };
   const router: RouterStub = { navigate: jest.fn().mockResolvedValue(true) };
+  const queryParamValue = opts.queryParam ?? null;
   const route: RouteStub = {
     snapshot: {
       queryParamMap: {
-        get: (key: string) => (key === 'countries' ? opts.queryParam ?? null : null),
+        get: (key: string) => (key === 'countries' ? queryParamValue : null),
       },
     },
+    queryParamMap: of(
+      convertToParamMap(queryParamValue == null ? {} : { countries: queryParamValue }),
+    ),
   };
 
   await TestBed.configureTestingModule({
