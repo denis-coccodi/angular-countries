@@ -39,6 +39,8 @@ export class PMultiselectComponent<T> implements FormValueControl<T[]> {
   readonly showClear = input(false);
   readonly virtualScrollItemSize = input(DEFAULT_ITEM_SIZE);
   readonly virtualScroll = input(true);
+  readonly filter = input(false);
+  readonly filterPlaceholder = input('Filter...');
 
   readonly value = model<T[]>([]);
   readonly disabled = input(false);
@@ -46,12 +48,20 @@ export class PMultiselectComponent<T> implements FormValueControl<T[]> {
 
   readonly listboxId = `app-multiselect-listbox-${++nextId}`;
   protected readonly open = signal(false);
+  protected readonly filterText = signal('');
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');
   private readonly popup = viewChild('listbox', { read: ElementRef });
+  private readonly filterInput = viewChild<ElementRef<HTMLInputElement>>('filterInput');
 
   private readonly selectedSet = computed(() => new Set(this.value()));
   private readonly limitReached = computed(() => this.value().length >= this.selectionLimit());
+
+  protected readonly filteredOptions = computed<readonly T[]>(() => {
+    const term = this.filterText().trim().toLowerCase();
+    if (!term) return this.options();
+    return this.options().filter((opt) => this.labelFor(opt).toLowerCase().includes(term));
+  });
 
   protected isOptionDisabled(opt: T): boolean {
     return this.limitReached() && !this.selectedSet().has(opt);
@@ -71,6 +81,10 @@ export class PMultiselectComponent<T> implements FormValueControl<T[]> {
     setTimeout(() => this.popup()?.nativeElement?.focus(), 0);
   }
 
+  private focusFilter(): void {
+    setTimeout(() => this.filterInput()?.nativeElement?.focus(), 0);
+  }
+
   private focusTrigger(): void {
     queueMicrotask(() => this.trigger()?.nativeElement?.focus());
   }
@@ -79,14 +93,30 @@ export class PMultiselectComponent<T> implements FormValueControl<T[]> {
     if (this.disabled()) return;
     const willOpen = !this.open();
     this.open.set(willOpen);
-    if (willOpen) this.focusListbox();
+    if (willOpen) {
+      if (this.filter()) this.focusFilter();
+      else this.focusListbox();
+    }
   }
 
   close(returnFocus = false): void {
     if (this.open()) {
       this.open.set(false);
+      this.filterText.set('');
       if (returnFocus) this.focusTrigger();
       this.touch.emit();
+    }
+  }
+
+  onFilterKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.close(true);
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.focusListbox();
     }
   }
 
@@ -118,7 +148,8 @@ export class PMultiselectComponent<T> implements FormValueControl<T[]> {
     if (!this.open() && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
       this.open.set(true);
-      this.focusListbox();
+      if (this.filter()) this.focusFilter();
+      else this.focusListbox();
     }
   }
 

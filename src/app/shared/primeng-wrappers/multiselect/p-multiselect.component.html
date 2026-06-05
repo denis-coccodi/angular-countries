@@ -47,29 +47,42 @@
   </button>
 
   @if (open()) {
-    <ul
-      #listbox
-      ngListbox
-      multi
-      tabindex="0"
-      [id]="listboxId"
-      class="app-multiselect-popup"
-      focusMode="activedescendant"
-      selectionMode="explicit"
-      [values]="value()"
-      (valuesChange)="onListboxChange($event)"
-      (keydown)="onListboxKeydown($event)">
-      @for (opt of options(); track $index) {
-        <li
-          ngOption
-          class="app-multiselect-option"
-          [value]="opt"
-          [label]="labelFor(opt)"
-          [disabled]="isOptionDisabled(opt)">
-          <span class="app-multiselect-checkbox" aria-hidden="true"></span>
-          <span class="app-multiselect-option-label">{{ labelFor(opt) }}</span>
-        </li>
+    <div class="app-multiselect-popup-wrapper">
+      @if (filter()) {
+        <input
+          #filterInput
+          type="text"
+          class="app-multiselect-filter"
+          [placeholder]="filterPlaceholder()"
+          [value]="filterText()"
+          (input)="filterText.set($any($event.target).value)"
+          (keydown)="onFilterKeydown($event)"
+          aria-label="Filter options" />
       }
-    </ul>
+      <ul
+        #listbox
+        ngListbox
+        multi
+        tabindex="0"
+        [id]="listboxId"
+        class="app-multiselect-popup"
+        focusMode="activedescendant"
+        selectionMode="explicit"
+        [values]="value()"
+        (valuesChange)="onListboxChange($event)"
+        (keydown)="onListboxKeydown($event)">
+        @for (opt of filteredOptions(); track $index) {
+          <li
+            ngOption
+            class="app-multiselect-option"
+            [value]="opt"
+            [label]="labelFor(opt)"
+            [disabled]="isOptionDisabled(opt)">
+            <span class="app-multiselect-checkbox" aria-hidden="true"></span>
+            <span class="app-multiselect-option-label">{{ labelFor(opt) }}</span>
+          </li>
+        }
+      </ul>
+    </div>
   }
 </div>

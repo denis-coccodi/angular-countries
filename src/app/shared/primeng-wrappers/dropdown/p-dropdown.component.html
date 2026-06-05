@@ -29,26 +29,39 @@
   </button>
 
   @if (open()) {
-    <ul
-      #listbox
-      ngListbox
-      tabindex="0"
-      [id]="listboxId"
-      class="app-dropdown-popup"
-      focusMode="activedescendant"
-      selectionMode="explicit"
-      [values]="selectedValues()"
-      (valuesChange)="onListboxChange($event)"
-      (keydown)="onListboxKeydown($event)">
-      @for (opt of options(); track $index) {
-        <li
-          ngOption
-          class="app-dropdown-option"
-          [value]="opt"
-          [label]="labelFor(opt)">
-          {{ labelFor(opt) }}
-        </li>
+    <div class="app-dropdown-popup-wrapper">
+      @if (filter()) {
+        <input
+          #filterInput
+          type="text"
+          class="app-dropdown-filter"
+          [placeholder]="filterPlaceholder()"
+          [value]="filterText()"
+          (input)="filterText.set($any($event.target).value)"
+          (keydown)="onFilterKeydown($event)"
+          aria-label="Filter options" />
       }
-    </ul>
+      <ul
+        #listbox
+        ngListbox
+        tabindex="0"
+        [id]="listboxId"
+        class="app-dropdown-popup"
+        focusMode="activedescendant"
+        selectionMode="explicit"
+        [values]="selectedValues()"
+        (valuesChange)="onListboxChange($event)"
+        (keydown)="onListboxKeydown($event)">
+        @for (opt of filteredOptions(); track $index) {
+          <li
+            ngOption
+            class="app-dropdown-option"
+            [value]="opt"
+            [label]="labelFor(opt)">
+            {{ labelFor(opt) }}
+          </li>
+        }
+      </ul>
+    </div>
   }
 </div>

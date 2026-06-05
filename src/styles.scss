@@ -56,6 +56,10 @@
   outline-offset: 2px;
 }
 
+body[data-pointer-focus] :focus-visible {
+  outline: none;
+}
+
 body {
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--color-surface-muted);
