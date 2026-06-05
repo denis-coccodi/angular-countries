@@ -1,5 +1,6 @@
-import { Component, forwardRef, input } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, input, model, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormValueControl } from '@angular/forms/signals';
 import { SelectModule } from 'primeng/select';
 
 @Component({
@@ -7,58 +8,34 @@ import { SelectModule } from 'primeng/select';
   standalone: true,
   imports: [SelectModule, FormsModule],
   host: { '[attr.id]': 'null' },
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => PDropdownComponent),
-    multi: true,
-  }],
   template: `
-    <p-select [inputId]="id()"
+    <p-select
+      [inputId]="id()"
       [attr.aria-label]="ariaLabel() || null"
-      [options]="options()"
-      [ngModel]="value"
+      [options]="$any(options())"
+      [ngModel]="value()"
       [placeholder]="placeholder()"
       [optionLabel]="optionLabel() || undefined"
       [optionValue]="optionValue() || undefined"
       [showClear]="showClear()"
-      [disabled]="disabled"
-      (ngModelChange)="onValueChange($event)"
-      (onBlur)="onTouched()"
-      [style]="{ width: '100%' }" />
+      [disabled]="disabled()"
+      (ngModelChange)="value.set($event)"
+      (onBlur)="touch.emit()"
+      [style]="{ width: '100%' }"
+    />
   `,
 })
-export class PDropdownComponent implements ControlValueAccessor {
+export class PDropdownComponent<T> implements FormValueControl<T | null> {
   readonly id = input('');
   readonly ariaLabel = input('');
-  readonly options = input<unknown[]>([]);
+  readonly options = input<readonly T[]>([]);
   readonly placeholder = input('');
   readonly optionLabel = input('');
   readonly optionValue = input('');
   readonly showClear = input(false);
 
-  value: unknown = null;
-  disabled = false;
-  onChange: (v: unknown) => void = () => {};
-  onTouched: () => void = () => {};
-
-  writeValue(value: unknown): void {
-    this.value = value;
-  }
-
-  registerOnChange(fn: (v: unknown) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  onValueChange(value: unknown): void {
-    this.value = value;
-    this.onChange(value);
-  }
+  readonly value = model<T | null>(null);
+  readonly disabled = input(false);
+  readonly touch = output<void>();
 }
+

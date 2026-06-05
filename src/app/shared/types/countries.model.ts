@@ -94,6 +94,13 @@ export interface FullCountry extends Country {
   postalCode: CountryPostalCode;
 }
 
-export function isFullCountry(country: Country | FullCountry): country is FullCountry {
+export function isFullCountry(
+  country: Country | FullCountry,
+): country is FullCountry {
   return 'timezones' in country;
 }
+
+export type countryCardPropertyDetail = {
+  value: string;
+  label: string;
+};

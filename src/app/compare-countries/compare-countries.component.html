@@ -1,10 +1,11 @@
-<form [formGroup]="selectedCountriesForm" class="selected-countries-form">
+<form [formRoot]="selectionForm" class="selected-countries-form">
   <label for="country-select">Select countries to compare</label>
   <app-p-multiselect
     id="country-select"
-    [options]="countryOptions()"
+    [options]="countries()"
+    optionLabel="name.common"
     placeholder="Select country..."
-    [formControl]="selectionControl"
+    [formField]="selectionForm"
   />
 </form>
 

@@ -1,6 +1,6 @@
-import { Component, forwardRef, input } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormValueControl } from '@angular/forms/signals';
 import { of } from 'rxjs';
 import { CountryListComponent } from './country-list.component';
 import { CountryService } from '../../core/service/country.service';
@@ -14,33 +14,29 @@ import { makeCountry } from '../../shared/utils/jest.utils';
   selector: 'app-p-input-text',
   template: '<input>',
   standalone: true,
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PInputTextStub), multi: true }],
 })
-class PInputTextStub implements ControlValueAccessor {
+class PInputTextStub implements FormValueControl<string> {
   readonly id = input('');
   readonly ariaLabel = input('');
   readonly placeholder = input('');
-  writeValue() {}
-  registerOnChange() {}
-  registerOnTouched() {}
+  readonly value = model('');
+  readonly disabled = input(false);
 }
 
 @Component({
   selector: 'app-p-dropdown',
-  template: '<select>',
+  template: '<select></select>',
   standalone: true,
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => PDropdownStub), multi: true }],
 })
-class PDropdownStub implements ControlValueAccessor {
+class PDropdownStub implements FormValueControl<unknown> {
   readonly id = input('');
   readonly options = input<unknown[]>([]);
   readonly placeholder = input('');
   readonly optionLabel = input('');
   readonly optionValue = input('');
   readonly showClear = input(false);
-  writeValue() {}
-  registerOnChange() {}
-  registerOnTouched() {}
+  readonly value = model<unknown>(null);
+  readonly disabled = input(false);
 }
 
 @Component({ selector: 'app-country-card', template: '<div class="card-stub"></div>', standalone: true })
@@ -88,6 +84,15 @@ describe('CountryListComponent', () => {
     fixture.detectChanges();
   });
 
+  const setSearch = (search: string) =>
+    component.filterModel.update((f) => ({ ...f, search }));
+  const setRegion = (region: string) =>
+    component.filterModel.update((f) => ({ ...f, region }));
+  const setSortBy = (value: 'name' | 'population' | 'area') => {
+    const sortBy = component.sortOptions.find((o) => o.value === value)!;
+    component.filterModel.update((f) => ({ ...f, sortBy }));
+  };
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -108,7 +113,7 @@ describe('CountryListComponent', () => {
 
   describe('search filter', () => {
     it('should filter countries by search term (case-insensitive)', fakeAsync(() => {
-      component.filterForm.get('search')!.setValue('alb');
+      setSearch('alb');
       tick(300);
 
       const names = component.filteredCountries().map((c) => c.name.common);
@@ -116,9 +121,9 @@ describe('CountryListComponent', () => {
     }));
 
     it('should show all countries when search is cleared', fakeAsync(() => {
-      component.filterForm.get('search')!.setValue('alb');
+      setSearch('alb');
       tick(300);
-      component.filterForm.get('search')!.setValue('');
+      setSearch('');
       tick(300);
 
       expect(component.filteredCountries().length).toBe(COUNTRIES.length);
@@ -127,7 +132,7 @@ describe('CountryListComponent', () => {
 
   describe('region filter', () => {
     it('should filter countries by region', fakeAsync(() => {
-      component.filterForm.get('region')!.setValue('Europe');
+      setRegion('Europe');
       tick(300);
 
       const names = component.filteredCountries().map((c) => c.name.common);
@@ -139,7 +144,7 @@ describe('CountryListComponent', () => {
 
   describe('sort', () => {
     it('should sort by name (default)', fakeAsync(() => {
-      component.filterForm.get('sortBy')!.setValue('name');
+      setSortBy('name');
       tick(300);
 
       const names = component.filteredCountries().map((c) => c.name.common);
@@ -147,7 +152,7 @@ describe('CountryListComponent', () => {
     }));
 
     it('should sort by population descending', fakeAsync(() => {
-      component.filterForm.get('sortBy')!.setValue('population');
+      setSortBy('population');
       tick(300);
 
       const populations = component.filteredCountries().map((c) => c.population);
@@ -155,7 +160,7 @@ describe('CountryListComponent', () => {
     }));
 
     it('should sort by area descending', fakeAsync(() => {
-      component.filterForm.get('sortBy')!.setValue('area');
+      setSortBy('area');
       tick(300);
 
       const areas = component.filteredCountries().map((c) => c.area);
@@ -165,20 +170,18 @@ describe('CountryListComponent', () => {
 
   describe('clearFilters()', () => {
     it('should reset search, region, and sortBy to defaults', fakeAsync(() => {
-      component.filterForm.get('search')!.setValue('test');
-      component.filterForm.get('region')!.setValue('Africa');
-      component.filterForm.get('sortBy')!.setValue('population');
+      const populationOption = component.sortOptions.find((o) => o.value === 'population')!;
+      const nameOption = component.sortOptions.find((o) => o.value === 'name')!;
+      component.filterModel.set({ search: 'test', region: 'Africa', sortBy: populationOption });
       tick(300);
 
       component.clearFilters();
 
-      expect(component.filterForm.get('search')!.value).toBe('');
-      expect(component.filterForm.get('region')!.value).toBe('');
-      expect(component.filterForm.get('sortBy')!.value).toBe('name');
+      expect(component.filterModel()).toEqual({ search: '', region: '', sortBy: nameOption });
     }));
 
     it('should restore all countries after clearing filters', fakeAsync(() => {
-      component.filterForm.get('search')!.setValue('alb');
+      setSearch('alb');
       tick(300);
       expect(component.filteredCountries().length).toBe(1);
 
@@ -203,8 +206,7 @@ describe('CountryListComponent', () => {
 
   describe('combined filters', () => {
     it('should apply search and region filter simultaneously', fakeAsync(() => {
-      component.filterForm.get('search')!.setValue('a');
-      component.filterForm.get('region')!.setValue('Europe');
+      component.filterModel.update((f) => ({ ...f, search: 'a', region: 'Europe' }));
       tick(300);
 
       const results = component.filteredCountries();

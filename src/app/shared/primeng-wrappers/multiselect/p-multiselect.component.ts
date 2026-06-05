@@ -1,5 +1,6 @@
-import { Component, forwardRef, input } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, input, model, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormValueControl } from '@angular/forms/signals';
 import { MultiSelectModule } from 'primeng/multiselect';
 
 const DEFAULT_SELECTION_LIMIT = 3;
@@ -10,18 +11,14 @@ const DEFAULT_ITEM_SIZE = 45;
   standalone: true,
   imports: [MultiSelectModule, FormsModule],
   host: { '[attr.id]': 'null' },
-  providers: [{
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => PMultiselectComponent),
-    multi: true,
-  }],
   template: `
     <p-multiselect
       [inputId]="id()"
       [attr.aria-label]="ariaLabel() || null"
-      [options]="options()"
-      [ngModel]="value"
-      (ngModelChange)="onValueChange($event)"
+      [options]="$any(options())"
+      [ngModel]="value()"
+      (ngModelChange)="value.set($event)"
+      (onBlur)="touch.emit()"
       [selectionLimit]="selectionLimit()"
       [virtualScroll]="virtualScroll()"
       [virtualScrollItemSize]="virtualScrollItemSize()"
@@ -29,15 +26,15 @@ const DEFAULT_ITEM_SIZE = 45;
       [optionValue]="optionValue() || undefined"
       [placeholder]="placeholder()"
       [showClear]="showClear()"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       [style]="{ width: '100%' }"
     />
   `,
 })
-export class PMultiselectComponent<T> implements ControlValueAccessor {
+export class PMultiselectComponent<T> implements FormValueControl<T[]> {
   readonly id = input('');
   ariaLabel = input('');
-  options = input<unknown[]>([]);
+  options = input<readonly T[]>([]);
   placeholder = input('');
   optionLabel = input('');
   optionValue = input('');
@@ -46,29 +43,7 @@ export class PMultiselectComponent<T> implements ControlValueAccessor {
   virtualScrollItemSize = input(DEFAULT_ITEM_SIZE);
   virtualScroll = input(true);
 
-  value: T[] = [];
-  disabled = false;
-  onChange: (v: T[]) => void = () => {};
-  onTouched: () => void = () => {};
-
-  writeValue(value: T[]): void {
-    this.value = value ?? [];
-  }
-
-  registerOnChange(fn: (v: T[]) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  onValueChange(value: T[]): void {
-    this.value = value;
-    this.onChange(value);
-  }
+  readonly value = model<T[]>([]);
+  readonly disabled = input(false);
+  readonly touch = output<void>();
 }
