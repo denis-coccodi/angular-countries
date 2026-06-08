@@ -1,4 +1,4 @@
-:root {
+.app-theme {
   // Brand
   --color-primary: #003155;
   --color-focus: #005ea2;
@@ -27,12 +27,27 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+  line-height: 1.6;
 }
 
-* {
+.app-theme,
+.app-theme * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.app-theme :focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app-theme[data-pointer-focus] :focus-visible {
+  outline: none;
 }
 
 .skip-to-content {
@@ -48,30 +63,5 @@
 
   &:focus {
     top: 0;
-  }
-}
-
-:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-body[data-pointer-focus] :focus-visible {
-  outline: none;
-}
-
-body {
-  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: var(--color-surface-muted);
-  color: var(--color-text);
-  line-height: 1.6;
-}
-
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
   }
 }
