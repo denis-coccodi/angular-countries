@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "compare-countries",
+  "projectType": "library",
+  "sourceRoot": "libs/compare-countries/src",
+  "prefix": "app",
+  "targets": {}
+}

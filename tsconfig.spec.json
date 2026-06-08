@@ -9,8 +9,10 @@
     ]
   },
   "include": [
-    "src/**/*.spec.ts",
-    "src/**/*.d.ts",
+    "apps/country-explorer/src/**/*.spec.ts",
+    "apps/country-explorer/src/**/*.d.ts",
+    "libs/**/*.spec.ts",
+    "libs/**/*.d.ts",
     "setup-jest.ts"
   ]
 }

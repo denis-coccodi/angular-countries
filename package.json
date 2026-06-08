@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "nx serve",
-    "build": "nx build",
+    "start": "nx serve country-explorer",
+    "build": "nx build country-explorer",
     "watch": "nx build --watch --configuration development",
     "test": "jest"
   },

@@ -17,7 +17,15 @@
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "ES2022",
+    "paths": {
+      "@country-explorer/compare-countries": ["./libs/compare-countries/src/index.ts"],
+      "@country-explorer/countries": ["./libs/countries/src/index.ts"],
+      "@country-explorer/ui-kit": ["./libs/ui-kit/src/index.ts"],
+      "@country-explorer/types/backend": ["./libs/types/src/backend/index.ts"],
+      "@country-explorer/types/frontend": ["./libs/types/src/frontend/index.ts"],
+      "@app/*": ["./apps/country-explorer/src/app/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
