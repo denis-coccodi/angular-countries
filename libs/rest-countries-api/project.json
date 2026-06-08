@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "rest-countries-api",
+  "projectType": "library",
+  "sourceRoot": "libs/rest-countries-api/src",
+  "prefix": "app",
+  "targets": {}
+}

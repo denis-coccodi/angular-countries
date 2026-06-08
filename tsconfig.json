@@ -22,6 +22,7 @@
       "@country-explorer/compare-countries": ["./libs/compare-countries/src/index.ts"],
       "@country-explorer/countries": ["./libs/countries/src/index.ts"],
       "@country-explorer/ui-kit": ["./libs/ui-kit/src/index.ts"],
+      "@country-explorer/rest-countries-api": ["./libs/rest-countries-api/src/index.ts"],
       "@country-explorer/types/backend": ["./libs/types/src/backend/index.ts"],
       "@country-explorer/types/frontend": ["./libs/types/src/frontend/index.ts"],
       "@app/*": ["./apps/country-explorer/src/app/*"]

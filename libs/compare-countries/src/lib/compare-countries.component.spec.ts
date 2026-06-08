@@ -1,10 +1,10 @@
-import { Component, input, model, signal } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormValueControl } from '@angular/forms/signals';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { CompareCountriesComponent } from './compare-countries.component';
-import { CountryService } from '@app/core/service/country.service';
+import { AllService, AlphaService } from '@country-explorer/rest-countries-api';
 import { Country } from '@country-explorer/types/backend';
 import { CountryCardComponent, PMultiselectComponent } from '@country-explorer/ui-kit';
 import { makeCountry, makeFullCountry } from '@app/shared/utils/jest.utils';
@@ -31,11 +31,8 @@ class CountryCardStub {
 const DEU = makeCountry({ name: { common: 'Germany', official: 'Germany', nativeName: {} }, cca3: 'DEU' });
 const FRA = makeCountry({ name: { common: 'France', official: 'France', nativeName: {} }, cca3: 'FRA' });
 
-type Service = {
-  countries: ReturnType<typeof signal<Country[]>>;
-  getAll: jest.Mock;
-  getByCodes: jest.Mock;
-};
+type AllServiceStub = { get: jest.Mock };
+type AlphaServiceStub = { getByCodes: jest.Mock };
 
 type RouterStub = { navigate: jest.Mock };
 type RouteStub = {
@@ -44,7 +41,6 @@ type RouteStub = {
 };
 
 interface SetupOptions {
-  preloaded?: Country[];
   getAllReturns?: Country[];
   queryParam?: string | null;
   getByCodesReturns?: Country[];
@@ -53,15 +49,15 @@ interface SetupOptions {
 async function setup(opts: SetupOptions = {}): Promise<{
   fixture: ComponentFixture<CompareCountriesComponent>;
   component: CompareCountriesComponent;
-  service: Service;
+  allService: AllServiceStub;
+  alphaService: AlphaServiceStub;
   router: RouterStub;
   route: RouteStub;
 }> {
-  const preloaded = opts.preloaded ?? [];
-  const countriesSignal = signal<Country[]>(preloaded);
-  const service: Service = {
-    countries: countriesSignal,
-    getAll: jest.fn().mockReturnValue(of(opts.getAllReturns ?? [DEU, FRA])),
+  const allService: AllServiceStub = {
+    get: jest.fn().mockReturnValue(of(opts.getAllReturns ?? [DEU, FRA])),
+  };
+  const alphaService: AlphaServiceStub = {
     getByCodes: jest.fn().mockReturnValue(of(opts.getByCodesReturns ?? [])),
   };
   const router: RouterStub = { navigate: jest.fn().mockResolvedValue(true) };
@@ -80,7 +76,8 @@ async function setup(opts: SetupOptions = {}): Promise<{
   await TestBed.configureTestingModule({
     imports: [CompareCountriesComponent],
     providers: [
-      { provide: CountryService, useValue: service },
+      { provide: AllService, useValue: allService },
+      { provide: AlphaService, useValue: alphaService },
       { provide: Router, useValue: router },
       { provide: ActivatedRoute, useValue: route },
     ],
@@ -96,7 +93,7 @@ async function setup(opts: SetupOptions = {}): Promise<{
   fixture.detectChanges();
   TestBed.tick();
 
-  return { fixture, component, service, router, route };
+  return { fixture, component, allService, alphaService, router, route };
 }
 
 describe('CompareCountriesComponent', () => {
@@ -106,14 +103,9 @@ describe('CompareCountriesComponent', () => {
   });
 
   describe('ngOnInit()', () => {
-    it('should call getAll when the countries signal is empty', async () => {
-      const { service } = await setup();
-      expect(service.getAll).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not call getAll when countries are already loaded', async () => {
-      const { service } = await setup({ preloaded: [DEU, FRA] });
-      expect(service.getAll).not.toHaveBeenCalled();
+    it('should call AllService.get on init', async () => {
+      const { allService } = await setup();
+      expect(allService.get).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -134,13 +126,13 @@ describe('CompareCountriesComponent', () => {
   });
 
   describe('onCountrySelectionChange()', () => {
-    it('should call getByCodes with the selected country codes', async () => {
+    it('should call AlphaService.getByCodes with the selected country codes', async () => {
       const fullDeu = makeFullCountry(DEU);
-      const { component, service } = await setup({ getByCodesReturns: [fullDeu] });
+      const { component, alphaService } = await setup({ getByCodesReturns: [fullDeu] });
 
       component.onCountrySelectionChange([DEU]);
 
-      expect(service.getByCodes).toHaveBeenCalledWith(['DEU']);
+      expect(alphaService.getByCodes).toHaveBeenCalledWith(['DEU']);
     });
 
     it('should update selectedCountries with the fetched full countries', async () => {
@@ -150,69 +142,70 @@ describe('CompareCountriesComponent', () => {
       component.onCountrySelectionChange([DEU]);
       TestBed.tick();
 
-      expect(component.selectedCountries()).toEqual([fullDeu]);
+      expect(component.selectedCountries()).toEqual([{ ...fullDeu, borders: ['France'] }]);
     });
 
     it('should set selectedCountries to empty without calling getByCodes when selection is empty', async () => {
-      const { component, service } = await setup();
+      const { component, alphaService } = await setup();
 
       component.onCountrySelectionChange([]);
 
-      expect(service.getByCodes).not.toHaveBeenCalled();
+      expect(alphaService.getByCodes).not.toHaveBeenCalled();
       expect(component.selectedCountries()).toEqual([]);
+    });
+
+    it('should map border CCA3 codes to country common names using the loaded list', async () => {
+      const fullDeu = { ...makeFullCountry(DEU), borders: ['FRA'] };
+      const { component } = await setup({
+        getAllReturns: [DEU, FRA],
+        getByCodesReturns: [fullDeu],
+      });
+
+      component.onCountrySelectionChange([DEU]);
+      TestBed.tick();
+
+      expect(component.selectedCountries()[0].borders).toEqual(['France']);
     });
   });
 
   describe('query param restoration', () => {
-    it('should restore the selection from the countries query param when countries are preloaded', async () => {
+    it('should restore the selection from the countries query param after getAll resolves', async () => {
       const fullDeu = makeFullCountry(DEU);
-      const { component, service } = await setup({
-        preloaded: [DEU, FRA],
+      const { component, alphaService } = await setup({
+        getAllReturns: [DEU, FRA],
         queryParam: 'DEU',
         getByCodesReturns: [fullDeu],
       });
 
       expect(component.selectionModel()).toEqual([DEU]);
-      expect(service.getByCodes).toHaveBeenCalledWith(['DEU']);
-      expect(component.selectedCountries()).toEqual([fullDeu]);
+      expect(alphaService.getByCodes).toHaveBeenCalledWith(['DEU']);
+      expect(component.selectedCountries()).toEqual([{ ...fullDeu, borders: ['France'] }]);
     });
 
-    it('should restore the selection after getAll resolves when countries were not preloaded', async () => {
-      const fullFra = makeFullCountry(FRA);
-      const { component, service } = await setup({
-        queryParam: 'FRA',
-        getByCodesReturns: [fullFra],
-      });
-
-      expect(component.selectionModel()).toEqual([FRA]);
-      expect(service.getByCodes).toHaveBeenCalledWith(['FRA']);
-      expect(component.selectedCountries()).toEqual([fullFra]);
-    });
-
-    it('should restore multiple codes preserving the order from the available country list', async () => {
+    it('should restore multiple codes preserving the alphabetical order of the loaded country list', async () => {
       const { component } = await setup({
-        preloaded: [DEU, FRA],
+        getAllReturns: [DEU, FRA],
         queryParam: 'FRA,DEU',
       });
 
-      expect(component.selectionModel()).toEqual([DEU, FRA]);
+      expect(component.selectionModel()).toEqual([FRA, DEU]);
     });
 
     it('should ignore unknown codes in the query param', async () => {
-      const { component, service } = await setup({
-        preloaded: [DEU, FRA],
+      const { component, alphaService } = await setup({
+        getAllReturns: [DEU, FRA],
         queryParam: 'ZZZ',
       });
 
       expect(component.selectionModel()).toEqual([]);
-      expect(service.getByCodes).not.toHaveBeenCalled();
+      expect(alphaService.getByCodes).not.toHaveBeenCalled();
     });
 
     it('should leave the selection empty when there is no countries query param', async () => {
-      const { component, service } = await setup({ preloaded: [DEU, FRA] });
+      const { component, alphaService } = await setup({ getAllReturns: [DEU, FRA] });
 
       expect(component.selectionModel()).toEqual([]);
-      expect(service.getByCodes).not.toHaveBeenCalled();
+      expect(alphaService.getByCodes).not.toHaveBeenCalled();
     });
   });
 
@@ -233,7 +226,7 @@ describe('CompareCountriesComponent', () => {
 
     it('should clear the countries query param when the selection becomes empty', async () => {
       const { component, router, route } = await setup({
-        preloaded: [DEU, FRA],
+        getAllReturns: [DEU, FRA],
         queryParam: 'DEU',
       });
       router.navigate.mockClear();

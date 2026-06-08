@@ -11,8 +11,9 @@ import {
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { CountryService } from '@app/core/service/country.service';
-import { Country } from '@country-explorer/types/backend';
+import { map } from 'rxjs/operators';
+import { Country, FullCountry } from '@country-explorer/types/backend';
+import { AllService, AlphaService } from '@country-explorer/rest-countries-api';
 import {
   CountryCardComponent,
   CountryCardProperty,
@@ -30,13 +31,12 @@ const MAXIMUM_COMPARABLE_COUNTRIES = 3;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareCountriesComponent implements OnInit, OnDestroy {
-  // Injections
-  countriesService = inject(CountryService);
+  private allService = inject(AllService);
+  private alphaService = inject(AlphaService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  // State
-  countries = this.countriesService.countries;
+  countries = signal<Country[]>([]);
   selectedProperties = signal<CountryCardProperty[]>([
     'region',
     'population',
@@ -68,25 +68,20 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.countries().length === 0) {
-      this.subscriptions.add(
-        this.countriesService.getAll().subscribe((countries) => {
-          this.countries.set(countries);
-          this.watchQueryParams();
-        }),
-      );
-    } else {
-      this.watchQueryParams();
-    }
+    this.subscriptions.add(
+      this.allService.get().subscribe((countries) => {
+        this.countries.set(
+          countries.sort((a, b) => a.name.common.localeCompare(b.name.common)),
+        );
+        this.watchQueryParams();
+      }),
+    );
   }
 
   private watchQueryParams(): void {
     this.subscriptions.add(
       this.route.queryParamMap.subscribe((params) => {
         const paramStr = params.get('countries') ?? '';
-        const currentStr = this.selectionModel()
-          .map((c) => c.cca3)
-          .join(',');
         const codes = paramStr
           .split(',')
           .filter(Boolean)
@@ -103,8 +98,16 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     const selectedCountriesCodes = event.map((country) => country.cca3);
     if (selectedCountriesCodes.length) {
       this.subscriptions.add(
-        this.countriesService
+        this.alphaService
           .getByCodes(selectedCountriesCodes)
+          .pipe(
+            map((countries: FullCountry[]) =>
+              countries.map((country) => ({
+                ...country,
+                borders: this.cca3ToCommonNames(country.borders || []),
+              })),
+            ),
+          )
           .subscribe((countries) => {
             this.selectedCountries.set(countries);
           }),
@@ -112,6 +115,12 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     } else {
       this.selectedCountries.set(event);
     }
+  }
+
+  private cca3ToCommonNames(cca3Countries: string[]): string[] {
+    return this.countries()
+      .filter((country) => cca3Countries.includes(country.cca3))
+      .map((country) => country.name.common);
   }
 
   private syncQueryParams(selected: Country[]): void {

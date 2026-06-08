@@ -3,7 +3,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { FormValueControl } from '@angular/forms/signals';
 import { of } from 'rxjs';
 import { CountryListComponent } from './country-list.component';
-import { CountryService } from '@app/core/service/country.service';
+import { AllService } from '@country-explorer/rest-countries-api';
 import { Country } from '@country-explorer/types/backend';
 import { PDropdownComponent, PInputTextComponent, CountryCardComponent } from '@country-explorer/ui-kit';
 import { makeCountry } from '@app/shared/utils/jest.utils';
@@ -55,7 +55,7 @@ const make = (common: string, region: string, population: number, area: number):
 describe('CountryListComponent', () => {
   let fixture: ComponentFixture<CountryListComponent>;
   let component: CountryListComponent;
-  let mockService: jest.Mocked<Pick<CountryService, 'getAll'>>;
+  let mockService: jest.Mocked<Pick<AllService, 'get'>>;
 
   const COUNTRIES: Country[] = [
     make('Albania', 'Europe', 2000000, 28748),
@@ -65,11 +65,11 @@ describe('CountryListComponent', () => {
   ];
 
   beforeEach(async () => {
-    mockService = { getAll: jest.fn().mockReturnValue(of([...COUNTRIES])) };
+    mockService = { get: jest.fn().mockReturnValue(of([...COUNTRIES])) };
 
     await TestBed.configureTestingModule({
       imports: [CountryListComponent],
-      providers: [{ provide: CountryService, useValue: mockService }],
+      providers: [{ provide: AllService, useValue: mockService }],
     })
       .overrideComponent(CountryListComponent, {
         remove: { imports: [PInputTextComponent, PDropdownComponent, CountryCardComponent] },
@@ -96,8 +96,8 @@ describe('CountryListComponent', () => {
   });
 
   describe('initial load', () => {
-    it('should call getAll on init', () => {
-      expect(mockService.getAll).toHaveBeenCalledTimes(1);
+    it('should call AllService.get on init', () => {
+      expect(mockService.get).toHaveBeenCalledTimes(1);
     });
 
     it('should populate filteredCountries after loading', () => {

@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, signal
 import { FormField, FormRoot, form } from '@angular/forms/signals';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { CountryService } from '@app/core/service/country.service';
 import { Country } from '@country-explorer/types/backend';
+import { AllService } from '@country-explorer/rest-countries-api';
 import { CountryCardComponent, PDropdownComponent, PInputTextComponent } from '@country-explorer/ui-kit';
 
 type SortBy = 'name' | 'population' | 'area';
@@ -36,7 +36,7 @@ const DEFAULT_FILTERS: FilterModel = { search: '', region: '', sortBy: SORT_OPTI
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryListComponent implements OnInit, OnDestroy {
-  private countryService = inject(CountryService);
+  private allService = inject(AllService);
 
   countries = signal<Country[]>([]);
   loading = signal(false);
@@ -87,8 +87,8 @@ export class CountryListComponent implements OnInit, OnDestroy {
   loadCountries(): void {
     this.loading.set(true);
     this.subscription.add(
-      this.countryService
-        .getAll()
+      this.allService
+        .get()
         .pipe(finalize(() => this.loading.set(false)))
         .subscribe((data: Country[]) => this.countries.set(data)),
     );
