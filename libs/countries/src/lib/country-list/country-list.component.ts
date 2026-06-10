@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, signal, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, FormRoot, form } from '@angular/forms/signals';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { CountriesStore } from '@country-explorer/countries-data-access';
 import { Country } from '@country-explorer/types/backend';
-import { AllService } from '@country-explorer/rest-countries-api';
 import { CountryCardComponent, PDropdownComponent, PInputTextComponent } from '@country-explorer/ui-kit';
 
 type SortBy = 'name' | 'population' | 'area';
@@ -35,14 +34,10 @@ const DEFAULT_FILTERS: FilterModel = { search: '', region: '', sortBy: SORT_OPTI
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryListComponent {
-  private allService = inject(AllService);
+  private readonly countriesStore = inject(CountriesStore);
 
-  readonly countriesResource = rxResource({
-    stream: () => this.allService.get(),
-  });
-
-  readonly countries = computed(() => this.countriesResource.value() ?? []);
-  readonly loading = this.countriesResource.isLoading;
+  readonly countries = this.countriesStore.countries;
+  readonly loading = this.countriesStore.loading;
 
   filterModel = signal<FilterModel>({ ...DEFAULT_FILTERS });
   filterForm = form(this.filterModel);

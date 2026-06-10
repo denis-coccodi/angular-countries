@@ -8,18 +8,17 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { Country, FullCountry } from '@country-explorer/types/backend';
-import { AllService, AlphaService } from '@country-explorer/rest-countries-api';
+import { AllService } from '@country-explorer/rest-countries-api';
 import {
   CountryCardComponent,
   CountryCardProperty,
   PMultiselectComponent,
 } from '@country-explorer/ui-kit';
+import { map } from 'rxjs/operators';
+import { CompareCountriesStore } from './data-access';
 
 const MAXIMUM_COMPARABLE_COUNTRIES = 3;
 
@@ -33,7 +32,7 @@ const MAXIMUM_COMPARABLE_COUNTRIES = 3;
 })
 export class CompareCountriesComponent {
   private allService = inject(AllService);
-  private alphaService = inject(AlphaService);
+  private compareCountriesStore = inject(CompareCountriesStore);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -60,25 +59,7 @@ export class CompareCountriesComponent {
   });
 
   selectionForm = form(this.selectionModel);
-
-  readonly selectedCountriesResource = rxResource({
-    params: () => this.selectionModel().map((c) => c.cca3),
-    stream: ({ params: codes }) => {
-      if (!codes || codes.length === 0) {
-        return of([]);
-      }
-      return this.alphaService.getByCodes(codes).pipe(
-        map((countries: FullCountry[]) =>
-          countries.map((country) => ({
-            ...country,
-            borders: this.cca3ToCommonNames(country.borders || []),
-          })),
-        ),
-      );
-    },
-  });
-
-  readonly selectedCountries = computed(() => this.selectedCountriesResource.value() ?? []);
+  readonly selectedCountries = this.compareCountriesStore.selectedCountries;
 
   selectedProperties = signal<CountryCardProperty[]>([
     'region',
@@ -94,6 +75,14 @@ export class CompareCountriesComponent {
   MAXIMUM_COMPARABLE_COUNTRIES = MAXIMUM_COMPARABLE_COUNTRIES;
 
   constructor() {
+    effect(() => {
+      this.compareCountriesStore.setAvailableCountries(this.countries());
+    });
+
+    effect(() => {
+      this.compareCountriesStore.setSelectedCodes(this.selectionModel().map((country) => country.cca3));
+    });
+
     // Reactively sync the current selection back to the URL query params.
     // This effect re-runs whenever selectionModel or queryParamMap changes.
     effect(() => {
@@ -124,11 +113,5 @@ export class CompareCountriesComponent {
         });
       }
     });
-  }
-
-  private cca3ToCommonNames(cca3Countries: string[]): string[] {
-    return this.countries()
-      .filter((country) => cca3Countries.includes(country.cca3))
-      .map((country) => country.name.common);
   }
 }

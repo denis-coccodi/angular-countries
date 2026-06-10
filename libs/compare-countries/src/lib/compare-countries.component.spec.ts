@@ -2,12 +2,13 @@ import { Component, input, model } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormValueControl } from '@angular/forms/signals';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { CompareCountriesComponent } from './compare-countries.component';
+import { makeCountry, makeFullCountry } from '@app/shared/utils/jest.utils';
 import { AllService, AlphaService } from '@country-explorer/rest-countries-api';
 import { Country } from '@country-explorer/types/backend';
 import { CountryCardComponent, PMultiselectComponent } from '@country-explorer/ui-kit';
-import { makeCountry, makeFullCountry } from '@app/shared/utils/jest.utils';
+import { Observable, of } from 'rxjs';
+import { CompareCountriesComponent } from './compare-countries.component';
+import { CompareCountriesStore } from './data-access';
 
 @Component({
   selector: 'app-p-multiselect',
@@ -18,6 +19,7 @@ class PMultiselectStub implements FormValueControl<unknown[]> {
   readonly id = input('');
   readonly options = input<unknown[]>([]);
   readonly placeholder = input('');
+  readonly showClear = input(false);
   readonly filter = input(false);
   readonly selectionLimit = input(0);
   readonly value = model<unknown[]>([]);
@@ -80,6 +82,7 @@ async function setup(opts: SetupOptions = {}): Promise<{
     providers: [
       { provide: AllService, useValue: allService },
       { provide: AlphaService, useValue: alphaService },
+      CompareCountriesStore,
       { provide: Router, useValue: router },
       { provide: ActivatedRoute, useValue: route },
     ],

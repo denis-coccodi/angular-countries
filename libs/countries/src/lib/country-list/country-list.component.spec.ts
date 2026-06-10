@@ -1,12 +1,12 @@
 import { Component, input, model } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormValueControl } from '@angular/forms/signals';
-import { of } from 'rxjs';
-import { CountryListComponent } from './country-list.component';
+import { makeCountry } from '@app/shared/utils/jest.utils';
 import { AllService } from '@country-explorer/rest-countries-api';
 import { Country } from '@country-explorer/types/backend';
-import { PDropdownComponent, PInputTextComponent, CountryCardComponent } from '@country-explorer/ui-kit';
-import { makeCountry } from '@app/shared/utils/jest.utils';
+import { CountryCardComponent, PDropdownComponent, PInputTextComponent } from '@country-explorer/ui-kit';
+import { of } from 'rxjs';
+import { CountryListComponent } from './country-list.component';
 
 @Component({
   selector: 'app-p-input-text',
@@ -111,83 +111,73 @@ describe('CountryListComponent', () => {
   });
 
   describe('search filter', () => {
-    it('should filter countries by search term (case-insensitive)', fakeAsync(() => {
+    it('should filter countries by search term (case-insensitive)', () => {
       setSearch('alb');
-      tick(300);
 
       const names = component.filteredCountries().map((c) => c.name.common);
       expect(names).toEqual(['Albania']);
-    }));
+    });
 
-    it('should show all countries when search is cleared', fakeAsync(() => {
+    it('should show all countries when search is cleared', () => {
       setSearch('alb');
-      tick(300);
       setSearch('');
-      tick(300);
 
       expect(component.filteredCountries().length).toBe(COUNTRIES.length);
-    }));
+    });
   });
 
   describe('region filter', () => {
-    it('should filter countries by region', fakeAsync(() => {
+    it('should filter countries by region', () => {
       setRegion('Europe');
-      tick(300);
 
       const names = component.filteredCountries().map((c) => c.name.common);
       expect(names).toContain('Albania');
       expect(names).toContain('Denmark');
       expect(names).not.toContain('Brazil');
-    }));
+    });
   });
 
   describe('sort', () => {
-    it('should sort by name (default)', fakeAsync(() => {
+    it('should sort by name (default)', () => {
       setSortBy('name');
-      tick(300);
 
       const names = component.filteredCountries().map((c) => c.name.common);
       expect(names).toEqual([...names].sort());
-    }));
+    });
 
-    it('should sort by population descending', fakeAsync(() => {
+    it('should sort by population descending', () => {
       setSortBy('population');
-      tick(300);
 
       const populations = component.filteredCountries().map((c) => c.population);
       expect(populations[0]).toBeGreaterThan(populations[1]);
-    }));
+    });
 
-    it('should sort by area descending', fakeAsync(() => {
+    it('should sort by area descending', () => {
       setSortBy('area');
-      tick(300);
 
       const areas = component.filteredCountries().map((c) => c.area);
       expect(areas[0]).toBeGreaterThan(areas[1]);
-    }));
+    });
   });
 
   describe('clearFilters()', () => {
-    it('should reset search, region, and sortBy to defaults', fakeAsync(() => {
+    it('should reset search, region, and sortBy to defaults', () => {
       const populationOption = component.sortOptions.find((o) => o.value === 'population')!;
       const nameOption = component.sortOptions.find((o) => o.value === 'name')!;
       component.filterModel.set({ search: 'test', region: 'Africa', sortBy: populationOption });
-      tick(300);
 
       component.clearFilters();
 
       expect(component.filterModel()).toEqual({ search: '', region: '', sortBy: nameOption });
-    }));
+    });
 
-    it('should restore all countries after clearing filters', fakeAsync(() => {
+    it('should restore all countries after clearing filters', () => {
       setSearch('alb');
-      tick(300);
       expect(component.filteredCountries().length).toBe(1);
 
       component.clearFilters();
-      tick(300);
       expect(component.filteredCountries().length).toBe(COUNTRIES.length);
-    }));
+    });
   });
 
   describe('regions and sortOptions', () => {
@@ -204,13 +194,12 @@ describe('CountryListComponent', () => {
   });
 
   describe('combined filters', () => {
-    it('should apply search and region filter simultaneously', fakeAsync(() => {
+    it('should apply search and region filter simultaneously', () => {
       component.filterModel.update((f) => ({ ...f, search: 'a', region: 'Europe' }));
-      tick(300);
 
       const results = component.filteredCountries();
       expect(results.every((c) => c.region === 'Europe')).toBe(true);
       expect(results.every((c) => c.name.common.toLowerCase().includes('a'))).toBe(true);
-    }));
+    });
   });
 });
