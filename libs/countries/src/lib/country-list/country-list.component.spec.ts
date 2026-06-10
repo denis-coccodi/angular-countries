@@ -33,6 +33,7 @@ class PDropdownStub implements FormValueControl<unknown> {
   readonly optionLabel = input('');
   readonly optionValue = input('');
   readonly showClear = input(false);
+  readonly filter = input(false);
   readonly value = model<unknown>(null);
   readonly disabled = input(false);
 }

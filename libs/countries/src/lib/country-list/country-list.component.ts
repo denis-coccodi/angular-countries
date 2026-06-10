@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, inject } from '@angular/core';
 import { FormField, FormRoot, form } from '@angular/forms/signals';
-import { Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Country } from '@country-explorer/types/backend';
 import { AllService } from '@country-explorer/rest-countries-api';
 import { CountryCardComponent, PDropdownComponent, PInputTextComponent } from '@country-explorer/ui-kit';
@@ -35,12 +34,15 @@ const DEFAULT_FILTERS: FilterModel = { search: '', region: '', sortBy: SORT_OPTI
   styleUrl: './country-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountryListComponent implements OnInit, OnDestroy {
+export class CountryListComponent {
   private allService = inject(AllService);
 
-  countries = signal<Country[]>([]);
-  loading = signal(false);
-  subscription = new Subscription();
+  readonly countriesResource = rxResource({
+    stream: () => this.allService.get(),
+  });
+
+  readonly countries = computed(() => this.countriesResource.value() ?? []);
+  readonly loading = this.countriesResource.isLoading;
 
   filterModel = signal<FilterModel>({ ...DEFAULT_FILTERS });
   filterForm = form(this.filterModel);
@@ -80,25 +82,7 @@ export class CountryListComponent implements OnInit, OnDestroy {
 
   readonly sortOptions = SORT_OPTIONS;
 
-  ngOnInit(): void {
-    this.loadCountries();
-  }
-
-  loadCountries(): void {
-    this.loading.set(true);
-    this.subscription.add(
-      this.allService
-        .get()
-        .pipe(finalize(() => this.loading.set(false)))
-        .subscribe((data: Country[]) => this.countries.set(data)),
-    );
-  }
-
   clearFilters(): void {
     this.filterModel.set({ ...DEFAULT_FILTERS });
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 }
