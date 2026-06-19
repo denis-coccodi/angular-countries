@@ -25,7 +25,7 @@ libs/
 | What | Where |
 |------|-------|
 | New pages / features | `libs/<feature-name>/src/lib/` |
-| HTTP services (GET only) | `libs/rest-countries-api/src/lib/v3-1/<endpoint>/` |
+| HTTP services (GET only) | `libs/rest-countries-api/src/lib/v5/<endpoint>/` |
 | Shared presentational components | `libs/ui-kit/src/lib/` |
 | TypeScript interfaces / types | `libs/types/src/` |
 | App config, providers, routes | `apps/country-explorer/src/app/` |

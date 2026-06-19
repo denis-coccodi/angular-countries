@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FullCountry } from '@country-explorer/types/backend';
@@ -10,6 +10,7 @@ export class NameService {
   private baseUrl = inject(REST_COUNTRIES_API_BASE_URL);
 
   search(name: string): Observable<FullCountry[]> {
-    return this.http.get<FullCountry[]>(`${this.baseUrl}/name/${name}`);
+    const params = new HttpParams().set('q', name);
+    return this.http.get<FullCountry[]>(`${this.baseUrl}/name`, { params });
   }
 }

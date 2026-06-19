@@ -91,7 +91,8 @@
           "buildTarget": "country-explorer:build:production"
         },
         "development": {
-          "buildTarget": "country-explorer:build:development"
+          "buildTarget": "country-explorer:build:development",
+          "proxyConfig": "apps/country-explorer/proxy.conf.js"
         }
       },
       "defaultConfiguration": "development"
