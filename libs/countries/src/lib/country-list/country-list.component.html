@@ -1,4 +1,7 @@
 <div class="country-list-page">
+  strs: {{ strs }} <br>
+  sortedStrs: {{ getSortedStrs(strs) | json }}<br>
+  AnagramsMap: {{ getAnagramsMap(strs) | json }} <br>
   <div class="filters-bar">
     <form [formRoot]="filterForm">
       <div class="filter-row">
@@ -8,7 +11,8 @@
             id="search-input"
             ariaLabel="Search countries"
             placeholder="Search countries..."
-            [formField]="filterForm.search">
+            [formField]="filterForm.search"
+          >
           </app-p-input-text>
         </div>
 
@@ -20,7 +24,8 @@
             placeholder="All Regions"
             [showClear]="true"
             [filter]="true"
-            [formField]="filterForm.region">
+            [formField]="filterForm.region"
+          >
           </app-p-dropdown>
         </div>
 
@@ -30,7 +35,8 @@
             id="sort-select"
             [options]="sortOptions"
             optionLabel="label"
-            [formField]="filterForm.sortBy">
+            [formField]="filterForm.sortBy"
+          >
           </app-p-dropdown>
         </div>
 
@@ -46,16 +52,14 @@
   </div>
 
   @if (!loading()) {
-    <div class="country-grid" role="region" aria-label="Country list">
-      @for (country of filteredCountries(); track country.cca3) {
-        <app-country-card [country]="country"></app-country-card>
-      }
-    </div>
-  }
-
-  @if (loading()) {
-    <div class="loading" role="status" aria-live="polite">
-      <p>Loading countries...</p>
-    </div>
+  <div class="country-grid" role="region" aria-label="Country list">
+    @for (country of filteredCountries(); track country.cca3) {
+    <app-country-card [country]="country"></app-country-card>
+    }
+  </div>
+  } @if (loading()) {
+  <div class="loading" role="status" aria-live="polite">
+    <p>Loading countries...</p>
+  </div>
   }
 </div>

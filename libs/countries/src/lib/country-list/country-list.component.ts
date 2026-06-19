@@ -1,8 +1,13 @@
+import { JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, FormRoot, form } from '@angular/forms/signals';
 import { CountriesStore } from '@country-explorer/countries-data-access';
 import { Country } from '@country-explorer/types/backend';
-import { CountryCardComponent, PDropdownComponent, PInputTextComponent } from '@country-explorer/ui-kit';
+import {
+  CountryCardComponent,
+  PDropdownComponent,
+  PInputTextComponent,
+} from '@country-explorer/ui-kit';
 
 type SortBy = 'name' | 'population' | 'area';
 
@@ -28,7 +33,14 @@ const DEFAULT_FILTERS: FilterModel = { search: '', region: '', sortBy: SORT_OPTI
 @Component({
   selector: 'app-country-list',
   standalone: true,
-  imports: [FormRoot, FormField, PInputTextComponent, PDropdownComponent, CountryCardComponent],
+  imports: [
+    FormRoot,
+    FormField,
+    PInputTextComponent,
+    PDropdownComponent,
+    CountryCardComponent,
+    JsonPipe,
+  ],
   templateUrl: './country-list.component.html',
   styleUrl: './country-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,18 +78,53 @@ export class CountryListComponent {
     return result;
   });
 
-  readonly regions = [
-    'Africa',
-    'Americas',
-    'Antarctic',
-    'Asia',
-    'Europe',
-    'Oceania',
-  ];
+  readonly regions = ['Africa', 'Americas', 'Antarctic', 'Asia', 'Europe', 'Oceania'];
 
   readonly sortOptions = SORT_OPTIONS;
 
   clearFilters(): void {
     this.filterModel.set({ ...DEFAULT_FILTERS });
+  }
+
+  strs = ['eat', 'tea', 'tan', 'ate', 'nat', 'bat'];
+
+  getSortedStrs(strs: string[]): Array<{ original: string; sorted: string }> {
+    return strs.map((str) => ({
+      original: str,
+      sorted: [...str].sort((a, b) => (a > b ? 1 : a < b ? -1 : 0)).join(''),
+    }));
+  }
+
+  getAnagrams(
+    referenceString: string,
+    sortedStrObjects: Array<{ original: string; sorted: string }>
+  ) {
+    return sortedStrObjects.reduce(
+      (acc, str) => [...acc, ...(referenceString === str.sorted ? [str.original] : [])],
+      [] as Array<string>
+    );
+  }
+
+  stripAnagramDuplicates(
+    referenceString: string,
+    sortedStrObjects: Array<{ original: string; sorted: string }>
+  ) {
+    return sortedStrObjects.filter((strObject) => strObject.sorted !== referenceString);
+  }
+
+  getAnagramsMap(strs: Array<string>) {
+    let sortedStrObjs: Array<{ original: string; sorted: string }> = this.getSortedStrs(strs);
+    let sortedStrsMap = new Map<string, Array<string>>(
+      sortedStrObjs.map((sortedStrObj) => [sortedStrObj.sorted, []])
+    );
+
+    for (const key of sortedStrsMap.keys()) {
+      const result = this.getAnagrams(key, sortedStrObjs);
+      sortedStrObjs = this.stripAnagramDuplicates(key, sortedStrObjs);
+
+      sortedStrsMap.set(key, result);
+    }
+
+    return Array.from(sortedStrsMap.values());
   }
 }
