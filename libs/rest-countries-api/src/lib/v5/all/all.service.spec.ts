@@ -37,27 +37,22 @@ describe('AllService', () => {
     req.flush([]);
   });
 
-  it('should keep paging while a full page is returned, then concatenate', () => {
-    const results: unknown[] = [];
-    service.get().subscribe((countries) => results.push(...countries));
+  it('should emit progressively as each page arrives, with the running accumulated array', () => {
+    const sizes: number[] = [];
+    service.get().subscribe((countries) => sizes.push(countries.length));
 
-    // First page is full (100) -> service must request the next offset.
-    const fullPage = Array.from({ length: 100 }, (_, i) => ({
-      cca3: `C${i}`,
-    }));
-    http
-      .expectOne((r) => r.params.get('offset') === '0')
-      .flush(fullPage);
+    const fullPage = Array.from({ length: 100 }, (_, i) => ({ cca3: `C${i}` }));
 
-    // Second page is short -> pagination stops.
-    http
-      .expectOne((r) => r.params.get('offset') === '100')
-      .flush([{ cca3: 'LAST' }]);
+    // Page 0 arrives -> subscriber sees the first 100 immediately.
+    http.expectOne((r) => r.params.get('offset') === '0').flush(fullPage);
+    expect(sizes).toEqual([100]);
 
-    expect(results).toHaveLength(101);
+    // Page 1 (short) ends pagination -> subscriber sees the cumulative 101.
+    http.expectOne((r) => r.params.get('offset') === '100').flush([{ cca3: 'LAST' }]);
+    expect(sizes).toEqual([100, 101]);
   });
 
-  it('should drop entries without a cca3 code', () => {
+  it('should drop entries without a cca3 code from every emission', () => {
     let result: Array<{ cca3: string }> = [];
     service.get().subscribe((countries) => (result = countries as Array<{ cca3: string }>));
 

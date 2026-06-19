@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, concat, of } from 'rxjs';
+import { concatMap, map } from 'rxjs/operators';
 import { Country } from '@country-explorer/types/backend';
 import { REST_COUNTRIES_API_BASE_URL } from '../base-url';
 
@@ -14,24 +14,30 @@ export class AllService {
   private http = inject(HttpClient);
   private baseUrl = inject(REST_COUNTRIES_API_BASE_URL);
 
+  // Streams the country list progressively: each completed page produces an
+  // emission carrying the running accumulated array. Consumers backed by
+  // `rxResource` re-render on every emission, so the UI can show the first 100
+  // countries as soon as page 0 arrives and grows as later pages stream in,
+  // rather than blocking on the full ~250-entry payload.
   get(): Observable<Country[]> {
-    // Drop codeless entries (e.g. disputed territories) the legacy API omitted,
-    // since the app keys countries by `cca3`.
     return this.fetchFrom(0, []).pipe(
+      // Drop codeless entries (e.g. disputed territories the legacy API
+      // omitted), since the app keys countries by `cca3`.
       map((countries) => countries.filter((country) => !!country.cca3)),
     );
   }
 
   private fetchFrom(offset: number, acc: Country[]): Observable<Country[]> {
     return this.fetchPage(offset).pipe(
-      switchMap((page) => {
+      concatMap((page) => {
         const combined = acc.concat(page);
-        // A full page means there may be more; a short page is the last one.
+        // Always emit what we have so far. If the page was full, keep paging
+        // in the background while subscribers already see the partial result.
         // (Page length is measured pre-filtering by the mapper interceptor, so
         // it still reflects the API's pagination accurately.)
         return page.length < PAGE_LIMIT
           ? of(combined)
-          : this.fetchFrom(offset + PAGE_LIMIT, combined);
+          : concat(of(combined), this.fetchFrom(offset + PAGE_LIMIT, combined));
       }),
     );
   }
