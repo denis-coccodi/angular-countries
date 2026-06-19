@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "countries-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/countries-data-access/src",
+  "prefix": "app",
+  "targets": {}
+}

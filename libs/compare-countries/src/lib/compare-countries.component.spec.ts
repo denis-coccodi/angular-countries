@@ -2,12 +2,13 @@ import { Component, input, model } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormValueControl } from '@angular/forms/signals';
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { CompareCountriesComponent } from './compare-countries.component';
+import { makeCountry, makeFullCountry } from '@app/shared/utils/jest.utils';
 import { AllService, AlphaService } from '@country-explorer/rest-countries-api';
 import { Country } from '@country-explorer/types/backend';
 import { CountryCardComponent, PMultiselectComponent } from '@country-explorer/ui-kit';
-import { makeCountry, makeFullCountry } from '@app/shared/utils/jest.utils';
+import { Observable, of } from 'rxjs';
+import { CompareCountriesComponent } from './compare-countries.component';
+import { CompareCountriesStore } from './data-access';
 
 @Component({
   selector: 'app-p-multiselect',
@@ -18,6 +19,9 @@ class PMultiselectStub implements FormValueControl<unknown[]> {
   readonly id = input('');
   readonly options = input<unknown[]>([]);
   readonly placeholder = input('');
+  readonly showClear = input(false);
+  readonly filter = input(false);
+  readonly selectionLimit = input(0);
   readonly value = model<unknown[]>([]);
   readonly disabled = input(false);
 }
@@ -78,6 +82,7 @@ async function setup(opts: SetupOptions = {}): Promise<{
     providers: [
       { provide: AllService, useValue: allService },
       { provide: AlphaService, useValue: alphaService },
+      CompareCountriesStore,
       { provide: Router, useValue: router },
       { provide: ActivatedRoute, useValue: route },
     ],
@@ -91,7 +96,10 @@ async function setup(opts: SetupOptions = {}): Promise<{
   const fixture = TestBed.createComponent(CompareCountriesComponent);
   const component = fixture.componentInstance;
   fixture.detectChanges();
-  TestBed.tick();
+  await fixture.whenStable();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  fixture.detectChanges();
 
   return { fixture, component, allService, alphaService, router, route };
 }
@@ -125,30 +133,37 @@ describe('CompareCountriesComponent', () => {
     });
   });
 
-  describe('onCountrySelectionChange()', () => {
+  describe('selectionModel changes', () => {
     it('should call AlphaService.getByCodes with the selected country codes', async () => {
       const fullDeu = makeFullCountry(DEU);
-      const { component, alphaService } = await setup({ getByCodesReturns: [fullDeu] });
+      const { fixture, component, alphaService } = await setup({ getByCodesReturns: [fullDeu] });
 
-      component.onCountrySelectionChange([DEU]);
+      component.selectionModel.set([DEU]);
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(alphaService.getByCodes).toHaveBeenCalledWith(['DEU']);
     });
 
     it('should update selectedCountries with the fetched full countries', async () => {
       const fullDeu = makeFullCountry(DEU);
-      const { component } = await setup({ getByCodesReturns: [fullDeu] });
+      const { fixture, component } = await setup({ getByCodesReturns: [fullDeu] });
 
-      component.onCountrySelectionChange([DEU]);
-      TestBed.tick();
+      component.selectionModel.set([DEU]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component.selectedCountries()).toEqual([{ ...fullDeu, borders: ['France'] }]);
     });
 
     it('should set selectedCountries to empty without calling getByCodes when selection is empty', async () => {
-      const { component, alphaService } = await setup();
+      const { fixture, component, alphaService } = await setup();
 
-      component.onCountrySelectionChange([]);
+      component.selectionModel.set([]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(alphaService.getByCodes).not.toHaveBeenCalled();
       expect(component.selectedCountries()).toEqual([]);
@@ -156,13 +171,15 @@ describe('CompareCountriesComponent', () => {
 
     it('should map border CCA3 codes to country common names using the loaded list', async () => {
       const fullDeu = { ...makeFullCountry(DEU), borders: ['FRA'] };
-      const { component } = await setup({
+      const { fixture, component } = await setup({
         getAllReturns: [DEU, FRA],
         getByCodesReturns: [fullDeu],
       });
 
-      component.onCountrySelectionChange([DEU]);
-      TestBed.tick();
+      component.selectionModel.set([DEU]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component.selectedCountries()[0].borders).toEqual(['France']);
     });
@@ -211,10 +228,11 @@ describe('CompareCountriesComponent', () => {
 
   describe('query param sync', () => {
     it('should write the cca3 codes to the URL when the selection changes', async () => {
-      const { component, router, route } = await setup();
+      const { fixture, component, router, route } = await setup();
 
       component.selectionModel.set([DEU, FRA]);
-      TestBed.tick();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: route,
@@ -225,14 +243,15 @@ describe('CompareCountriesComponent', () => {
     });
 
     it('should clear the countries query param when the selection becomes empty', async () => {
-      const { component, router, route } = await setup({
+      const { fixture, component, router, route } = await setup({
         getAllReturns: [DEU, FRA],
         queryParam: 'DEU',
       });
       router.navigate.mockClear();
 
       component.selectionModel.set([]);
-      TestBed.tick();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: route,

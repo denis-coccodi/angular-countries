@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, FormRoot, form } from '@angular/forms/signals';
-import { Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { CountriesStore } from '@country-explorer/countries-data-access';
 import { Country } from '@country-explorer/types/backend';
-import { AllService } from '@country-explorer/rest-countries-api';
 import { CountryCardComponent, PDropdownComponent, PInputTextComponent } from '@country-explorer/ui-kit';
 
 type SortBy = 'name' | 'population' | 'area';
@@ -35,12 +33,11 @@ const DEFAULT_FILTERS: FilterModel = { search: '', region: '', sortBy: SORT_OPTI
   styleUrl: './country-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountryListComponent implements OnInit, OnDestroy {
-  private allService = inject(AllService);
+export class CountryListComponent {
+  private readonly countriesStore = inject(CountriesStore);
 
-  countries = signal<Country[]>([]);
-  loading = signal(false);
-  subscription = new Subscription();
+  readonly countries = this.countriesStore.countries;
+  readonly loading = this.countriesStore.loading;
 
   filterModel = signal<FilterModel>({ ...DEFAULT_FILTERS });
   filterForm = form(this.filterModel);
@@ -80,25 +77,7 @@ export class CountryListComponent implements OnInit, OnDestroy {
 
   readonly sortOptions = SORT_OPTIONS;
 
-  ngOnInit(): void {
-    this.loadCountries();
-  }
-
-  loadCountries(): void {
-    this.loading.set(true);
-    this.subscription.add(
-      this.allService
-        .get()
-        .pipe(finalize(() => this.loading.set(false)))
-        .subscribe((data: Country[]) => this.countries.set(data)),
-    );
-  }
-
   clearFilters(): void {
     this.filterModel.set({ ...DEFAULT_FILTERS });
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 }

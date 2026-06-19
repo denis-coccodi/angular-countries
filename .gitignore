@@ -43,3 +43,9 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+
+# Local secrets (API keys) — never commit
+proxy.secrets.json
+
+# Local Claude Code settings (per-developer, not shared)
+.claude/settings.local.json

@@ -1,24 +1,24 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
-  OnDestroy,
-  OnInit,
+  linkedSignal,
   signal,
   untracked,
 } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Country, FullCountry } from '@country-explorer/types/backend';
-import { AllService, AlphaService } from '@country-explorer/rest-countries-api';
+import { AllService } from '@country-explorer/rest-countries-api';
 import {
   CountryCardComponent,
   CountryCardProperty,
   PMultiselectComponent,
 } from '@country-explorer/ui-kit';
+import { map } from 'rxjs/operators';
+import { CompareCountriesStore } from './data-access';
 
 const MAXIMUM_COMPARABLE_COUNTRIES = 3;
 
@@ -30,13 +30,37 @@ const MAXIMUM_COMPARABLE_COUNTRIES = 3;
   styleUrl: './compare-countries.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CompareCountriesComponent implements OnInit, OnDestroy {
+export class CompareCountriesComponent {
   private allService = inject(AllService);
-  private alphaService = inject(AlphaService);
+  private compareCountriesStore = inject(CompareCountriesStore);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  countries = signal<Country[]>([]);
+  readonly countriesResource = rxResource({
+    stream: () => this.allService.get().pipe(
+      map((countries) => countries.sort((a, b) => a.name.common.localeCompare(b.name.common)))
+    )
+  });
+  readonly countries = computed(() => this.countriesResource.value() ?? []);
+
+  readonly queryParamMap = toSignal(this.route.queryParamMap);
+
+  readonly selectionModel = linkedSignal(() => {
+    const params = this.queryParamMap();
+    if (!params) return [];
+    const paramStr = params.get('countries') ?? '';
+    const codes = paramStr
+      .split(',')
+      .filter(Boolean)
+      .map((code) => code.toUpperCase());
+    return this.countries()
+      .filter((c) => codes.includes(c.cca3))
+      .slice(0, MAXIMUM_COMPARABLE_COUNTRIES);
+  });
+
+  selectionForm = form(this.selectionModel);
+  readonly selectedCountries = this.compareCountriesStore.selectedCountries;
+
   selectedProperties = signal<CountryCardProperty[]>([
     'region',
     'population',
@@ -48,92 +72,46 @@ export class CompareCountriesComponent implements OnInit, OnDestroy {
     'borders',
   ]);
 
-  selectionModel = signal<Country[]>([]);
-  selectionForm = form(this.selectionModel);
-
-  selectedCountries = signal<Country[]>([]);
-
-  subscriptions = new Subscription();
-
   MAXIMUM_COMPARABLE_COUNTRIES = MAXIMUM_COMPARABLE_COUNTRIES;
 
   constructor() {
     effect(() => {
+      this.compareCountriesStore.setAvailableCountries(this.countries());
+    });
+
+    effect(() => {
+      this.compareCountriesStore.setSelectedCodes(this.selectionModel().map((country) => country.cca3));
+    });
+
+    // Reactively sync the current selection back to the URL query params.
+    // This effect re-runs whenever selectionModel or queryParamMap changes.
+    effect(() => {
       const selection = this.selectionModel();
-      untracked(() => {
-        this.onCountrySelectionChange(selection);
-        this.syncQueryParams(selection);
-      });
+      const codes = selection.map((c) => c.cca3);
+
+      // Read the current URL state so we can compare before writing.
+      const params = this.queryParamMap();
+      const currentParamStr = params?.get('countries') ?? '';
+      const currentCodes = currentParamStr.split(',').filter(Boolean);
+
+      // Guard: only navigate if the selection actually differs from the URL,
+      // preventing redundant history entries when the URL drives the selection.
+      const hasChanged =
+        codes.length !== currentCodes.length ||
+        codes.some((c, idx) => c !== currentCodes[idx]);
+
+      if (hasChanged) {
+        // untracked prevents the router.navigate call from being tracked as a
+        // signal dependency, which would otherwise cause an infinite loop.
+        untracked(() => {
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { countries: codes.length ? codes.join(',') : null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        });
+      }
     });
-  }
-
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.allService.get().subscribe((countries) => {
-        this.countries.set(
-          countries.sort((a, b) => a.name.common.localeCompare(b.name.common)),
-        );
-        this.watchQueryParams();
-      }),
-    );
-  }
-
-  private watchQueryParams(): void {
-    this.subscriptions.add(
-      this.route.queryParamMap.subscribe((params) => {
-        const paramStr = params.get('countries') ?? '';
-        const codes = paramStr
-          .split(',')
-          .filter(Boolean)
-          .map((code) => code.toLocaleUpperCase());
-        const matched = this.countries()
-          .filter((c) => codes.includes(c.cca3))
-          .slice(0, MAXIMUM_COMPARABLE_COUNTRIES);
-        this.selectionModel.set(matched);
-      }),
-    );
-  }
-
-  onCountrySelectionChange(event: Country[]): void {
-    const selectedCountriesCodes = event.map((country) => country.cca3);
-    if (selectedCountriesCodes.length) {
-      this.subscriptions.add(
-        this.alphaService
-          .getByCodes(selectedCountriesCodes)
-          .pipe(
-            map((countries: FullCountry[]) =>
-              countries.map((country) => ({
-                ...country,
-                borders: this.cca3ToCommonNames(country.borders || []),
-              })),
-            ),
-          )
-          .subscribe((countries) => {
-            this.selectedCountries.set(countries);
-          }),
-      );
-    } else {
-      this.selectedCountries.set(event);
-    }
-  }
-
-  private cca3ToCommonNames(cca3Countries: string[]): string[] {
-    return this.countries()
-      .filter((country) => cca3Countries.includes(country.cca3))
-      .map((country) => country.name.common);
-  }
-
-  private syncQueryParams(selected: Country[]): void {
-    const codes = selected.map((c) => c.cca3);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { countries: codes.length ? codes.join(',') : null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 }

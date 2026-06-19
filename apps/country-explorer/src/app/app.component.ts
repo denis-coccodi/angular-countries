@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { PHeaderComponent } from '@country-explorer/ui-kit';
@@ -8,7 +8,8 @@ import { PHeaderComponent } from '@country-explorer/ui-kit';
   standalone: true,
   imports: [RouterLink, RouterOutlet, PHeaderComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
   title = 'Country Explorer';

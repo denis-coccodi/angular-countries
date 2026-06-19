@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { CompareCountriesStore } from '@country-explorer/compare-countries';
 
 export const routes: Routes = [
   {
@@ -8,6 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'compare',
+    providers: [CompareCountriesStore],
     loadComponent: () =>
       import('@country-explorer/compare-countries').then((m) => m.CompareCountriesComponent),
   },
