@@ -23,7 +23,6 @@
     "@angular/router": "21.2.14",
     "@ngrx/signals": "^21.1.1",
     "rxjs": "~7.8.0",
-    "single-spa": "^6.0.3",
     "single-spa-angular": "^21.0.2",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
