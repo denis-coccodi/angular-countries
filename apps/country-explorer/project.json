@@ -77,6 +77,16 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "single-spa": {
+          "browser": "apps/country-explorer/src/main.single-spa.ts",
+          "tsConfig": "apps/country-explorer/tsconfig.single-spa.json",
+          "outputPath": "dist/country-explorer-single-spa",
+          "index": false,
+          "polyfills": [],
+          "outputHashing": "none",
+          "optimization": false,
+          "sourceMap": true
         }
       },
       "defaultConfiguration": "production",
@@ -96,6 +106,17 @@
         }
       },
       "defaultConfiguration": "development"
+    },
+    "serve-single-spa": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "continuous": true,
+      "options": {
+        "port": 4201,
+        "headers": {
+          "Access-Control-Allow-Origin": "*"
+        },
+        "buildTarget": "country-explorer:build:single-spa"
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n"
