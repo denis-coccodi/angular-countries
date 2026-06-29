@@ -29,6 +29,9 @@ const MAXIMUM_COMPARABLE_COUNTRIES = 3;
   templateUrl: './compare-countries.component.html',
   styleUrl: './compare-countries.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[style.width]': "'100%'",
+  }
 })
 export class CompareCountriesComponent {
   private allService = inject(AllService);
